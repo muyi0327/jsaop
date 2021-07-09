@@ -1,0 +1,67 @@
+{
+    "name": "@jsaop/jsaop",
+    "version": "1.0.3",
+    "description": "typescript aspect aop",
+    "main": "./dist/jsaop.js",
+    "module": "./dist/jsaop.es.js",
+    "files": [
+        "dist/*",
+        "index.d.ts",
+        "package.json",
+        "README.md"
+    ],
+    "scripts": {
+        "test": "jest -w --detectOpenHandles",
+        "example": "rollup -c ./rollup.exp.config.js",
+        "dev": "rimraf ./dist/* && rollup -c --environment INCLUDE_DEPS,BUILD:development -w",
+        "build": "yarn test && rimraf ./dist/* && rollup -c --environment INCLUDE_DEPS,BUILD:production",
+        "start": "http-server --port 8082 -o /example"
+    },
+    "keywords": [
+        "typescript",
+        "aspect",
+        "aop"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+http://github.com:muyi0327/jsaop.git"
+    },
+    "bugs": {
+        "url": "https://github.com/muyi0327/jsaop/issues"
+    },
+    "homepage": "https://github.com/muyi0327/jsaop",
+    "author": "muyi0327 <yfdezhuye@163.com> (https://github.com/muyi0327)",
+    "license": "MIT",
+    "devDependencies": {
+        "@babel/core": "^7.14.6",
+        "@babel/plugin-external-helpers": "^7.14.5",
+        "@babel/plugin-proposal-class-properties": "^7.14.5",
+        "@babel/plugin-proposal-decorators": "^7.14.5",
+        "@babel/plugin-transform-runtime": "^7.14.5",
+        "@babel/preset-env": "^7.14.7",
+        "@babel/preset-typescript": "^7.14.5",
+        "@babel/runtime-corejs3": "^7.14.7",
+        "@rollup/plugin-babel": "^5.3.0",
+        "@rollup/plugin-buble": "^0.21.3",
+        "@rollup/plugin-commonjs": "^19.0.0",
+        "@rollup/plugin-json": "^4.1.0",
+        "@rollup/plugin-node-resolve": "^13.0.0",
+        "@rollup/plugin-typescript": "^8.2.1",
+        "@types/jest": "^26.0.23",
+        "babel-jest": "^27.0.6",
+        "core-js": "^3.15.2",
+        "jest": "^27.0.6",
+        "rollup-plugin-terser": "^7.0.2",
+        "ts-jest": "^27.0.3",
+        "tslib": "^2.3.0",
+        "typescript": "^4.3.4"
+    },
+    "dependencies": {},
+    "browserslist": [
+        "> 3% in CN",
+        "not ie > 0",
+        "ios_saf >= 9",
+        "Android >= 5",
+        "not dead"
+    ]
+}
