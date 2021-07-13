@@ -1,6 +1,6 @@
 {
     "name": "@jsaop/jsaop",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "description": "typescript aspect aop",
     "main": "./dist/jsaop.js",
     "module": "./dist/jsaop.es.js",
