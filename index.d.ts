@@ -61,17 +61,17 @@ export interface PointcutClass {
     rules: PointcutRules;
     advices: Advices;
     matches: (ctx: PointcutMatches) => boolean;
-    registAdvice<T extends AdviceKeys>(type: T, advice: Advice<T>): void;
+    registAdvice<T extends AdviceKeys>(type: T, advice: Advices[T]): void;
     findAdvice(type: AdviceKeys): AdviceTypes;
     normalizedRules(rules: PointcutRules): Array<PointcutRuleType | RegExp | string>;
     toRegRule(rule: string): void;
 }
 
-declare const Pointcut = (type?: PointcutType) => MethodDecorator
-declare const Before: AdviceDecorator
-declare const After: AdviceDecorator
-declare const AfterReturning: AdviceDecorator
-declare const AfterThrowing: AdviceDecorator
-declare const Around: AdviceDecorator
-declare const Aspect: () => ClassDecorator
-declare const Weaving: (opts?: WeavingOpts | undefined) => ClassDecorator
+declare let Pointcut: (type?: PointcutType) => MethodDecorator
+declare let Before: AdviceDecorator
+declare let After: AdviceDecorator
+declare let AfterReturning: AdviceDecorator
+declare let AfterThrowing: AdviceDecorator
+declare let Around: AdviceDecorator
+declare let Aspect: () => ClassDecorator
+declare let Weaving: (opts?: WeavingOpts | undefined) => ClassDecorator
