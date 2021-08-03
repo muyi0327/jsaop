@@ -1,6 +1,6 @@
 
 /**
- * jsaop.js v1.0.3
+ * jsaop.js v1.0.4
  * (c) 2021-2021 muyi0327 <yfdezhuye@163.com> (https://github.com/muyi0327)
  * Released under the MIT License.
  */
