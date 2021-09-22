@@ -32,7 +32,9 @@
     "homepage": "https://github.com/muyi0327/jsaop",
     "author": "muyi0327 <yfdezhuye@163.com> (https://github.com/muyi0327)",
     "license": "MIT",
-    "devDependencies": {},
+    "devDependencies": {
+        "jest": "^27.2.1"
+    },
     "dependencies": {},
     "browserslist": [
         "> 3% in CN",
