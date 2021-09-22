@@ -1,5 +1,5 @@
 
-import { OriginAspects } from './aspect'
+import 'reflect-metadata'
 import { AdviceKeys, Advice, AdviceTypes, Advices } from './advice'
 
 type PointcutMatches = { namespace?: string, className?: string; methodName?: string }
@@ -26,7 +26,7 @@ export class PointcutClass implements PointcutClassType {
     type: string // 成员类型
     advices: Advices = {} // 对应的aspect
 
-    constructor(rules: PointcutRules, type: PointcutType = 'proto') {
+    constructor( rules: PointcutRules, type: PointcutType = 'proto') {
         this.rules = this.normalizedRules(rules)
         this.type = type
     }
@@ -110,6 +110,10 @@ export class PointcutClass implements PointcutClassType {
         return reg
     }
 
+    eq(type, rules) {
+        return type === this.type && rules === this.rules
+    }
+
     /**
      * 判断类及类方法匹配
      * @param className {string} 类名称
@@ -135,17 +139,18 @@ export class PointcutClass implements PointcutClassType {
  * 切点装饰器
  * @returns void
  */
-export const Pointcut = (type?: PointcutType) => (target: any, propKey: string, descriptor: PropertyDescriptor) => {
-    let name = target.constructor.name
-    let aspect!: PointcutMap
+export const Pointcut = (type: PointcutType='proto') => (target: any, propKey: string, descriptor: PropertyDescriptor) => {
     let pointcutRules = target[propKey]
-    if (!OriginAspects.has(name)) {
-        OriginAspects.regist(name)
+    let metaKey:string = `MetaData:pointcuts`
+    let pointcuts:Map<string,PointcutClass> = Reflect.getMetadata(metaKey, target)
+    if (!pointcuts) {
+        pointcuts = new Map()
     }
 
-    aspect = OriginAspects.get(name) as PointcutMap
-
-    aspect[propKey] = new PointcutClass(pointcutRules, type)
+    let pointCut: PointcutClass = new PointcutClass( pointcutRules, type)
+    pointcuts.set(propKey,pointCut)
+    
+    Reflect.defineMetadata(metaKey, pointcuts, target)
 
     return descriptor
 }

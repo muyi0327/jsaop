@@ -1,7 +1,9 @@
+import 'reflect-metadata'
 import { PointcutClass, PointcutMap, PointcutType } from './pointcut'
 import { JoinPoint, ProceedJoinPoint } from './joinpoint'
 import { AfterAdviceType, AfterReturningAdviceType, AfterThrowAdviceType, BeforeAdviceType, AroundAdviceType } from './advice'
 export type AspectMap = { [s: string]: PointcutMap }
+
 export interface WeavingOpts {
     blackList?: Array<string>;
     namespace?: string;
@@ -12,86 +14,15 @@ const isPromise = (fn) => !!fn && typeof fn.then === 'function' && fn[Symbol.toS
 /**
  * Aspects管理类
  */
-export class AOP {
-    public aspects: AspectMap = {}
+export const AOP: Array<any> = []
 
-    /**
-     * 注册aspect
-     * @param name 
-     */
-    regist(name: string) {
-        let pointcuts: PointcutMap = {}
-        this.aspects[name] = pointcuts
-    }
-
-    /**
-     * 判断是否已经注册aspect
-     * @param name 
-     * @returns 
-     */
-    has(name: string): boolean {
-        return this.aspects.hasOwnProperty(name)
-    }
-
-    /**
-     * 查找aspect
-     * @param name 
-     * @returns 
-     */
-    get(name: string): PointcutMap | undefined {
-        return this.aspects[name]
-    }
-
-    /**
-     * 清楚所以aspect
-     */
-    clear() {
-        this.aspects = {}
-    }
-
-    /**
-     * aspects迭代器
-     * @param cb 
-     */
-    forEach(cb) {
-        Object.keys(this.aspects).forEach((i) => {
-            let aspect = this.aspects[i]
-            cb(aspect)
-        })
-    }
-
-    /**
-     * 查询符合条件的切点
-     * @param cb {(pointcut: PointcutMap) => boolean} 过滤函数;
-     * @returns PointcutMap[]
-     */
-    fitler(cb: (pointcut: PointcutClass) => boolean): PointcutClass[] {
-        let p: PointcutClass[] = []
-        this.forEach((aspect: PointcutMap) => {
-            Object.keys(aspect).forEach((i) => {
-                let pointcut = aspect[i]
-                if (cb(pointcut)) {
-                    p.push(pointcut)
-                }
-            })
-        })
-
-        return p
-    }
-}
-
-// 全局唯一aspects
-export const OriginAspects = new AOP()
 
 /**
  * Aspect装饰器
  * @param target 
  */
 export const Aspect: () => ClassDecorator = () => (target) => {
-    let name: string = target.name
-    if (!OriginAspects.has(name)) {
-        OriginAspects.regist(name)
-    }
+    AOP.push(target)
 }
 
 
@@ -110,9 +41,10 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator = (opts?: WeavingOp
     const weavePointcut = (keys: string[], ctx: any, type: PointcutType) => keys.forEach((prop: string) => {
         // let value = ctx[prop]
         // if (typeof value === 'function') {
-        let pointcuts: PointcutClass[] = OriginAspects.fitler((pointcut) => {
-            return pointcut && pointcut.type === type && pointcut.matches({ namespace, className: target.name, methodName: prop })
-        })
+        let pointcuts: any[] = AOP.reduce((rst, aspect) => {
+            let pts = Reflect.getMetadata('MetaData:pointcuts', aspect.prototype)
+            return rst.concat(pts.filter(pointcut =>pointcut && pointcut.type === type && pointcut.matches({ namespace, className: target.name, methodName: prop })))
+        }, [])
 
         if (!!pointcuts && !!pointcuts.length) {
             let value = ctx[prop]
@@ -150,9 +82,9 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator = (opts?: WeavingOp
                                     if (index < len - 1) {
                                         rst = executeChain()
                                     } else {
-                                        rst = value.apply(thisArg, args)
+                                        rst = Reflect.apply(value,thisArg, args)
                                     }
-                                } catch (error) {
+                                } catch (error:any) {
                                     err = error
                                 }
 

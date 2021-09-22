@@ -1,6 +1,5 @@
+import 'reflect-metadata'
 import { JoinPoint, ProceedJoinPoint } from "./joinpoint"
-import { PointcutClass, PointcutMap } from "./pointcut"
-import { OriginAspects, AspectMap } from './aspect'
 
 type PointcutOpts = { value: string }
 type AdviceDecorator = (options: PointcutOpts) => MethodDecorator
@@ -24,20 +23,15 @@ export interface Advices {
 
 // 创建advice
 const createAdvice = (type: AdviceKeys) => (options: PointcutOpts) => {
-    let pointcutKey: string = options.value
-
+    let pointcutName: string = options.value
+    let metaKey = 'MetaData:pointcuts'
     return (target: any, key: string | symbol, descriptor: PropertyDescriptor) => {
-
         let fun = descriptor.value
-        let name: string = target.constructor.name
-        let pointcut: PointcutClass | undefined | null
-        let aspect: PointcutMap | undefined
-
-        if (aspect = OriginAspects.get(name)) {
-            if (pointcut = aspect[pointcutKey]) {
-                pointcut.registAdvice(type, fun)
-            }
-        }
+        let pointcuts = Reflect.getMetadata(metaKey, target)
+        let pt = pointcuts.get(pointcutName)
+        pt.registAdvice(type, fun)
+        pointcuts.set(pointcutName, pt)
+        Reflect.defineMetadata(metaKey, pointcuts, target)
 
         return descriptor
     }
