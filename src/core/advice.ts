@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { JoinPoint, ProceedJoinPoint } from "./joinpoint"
+import { JoinPoint, ProceedJoinPoint } from './joinpoint'
 
 type PointcutOpts = { value: string }
 type AdviceDecorator = (options: PointcutOpts) => MethodDecorator
@@ -14,11 +14,11 @@ export type AdviceTypes = Advices[AdviceKeys]
 export type Advice<T extends AdviceKeys> = Advices[T]
 
 export interface Advices {
-    after?: AfterAdviceType;
-    afterReturning?: AfterReturningAdviceType;
-    afterThrowing?: AfterThrowAdviceType;
-    before?: BeforeAdviceType;
-    around?: AroundAdviceType;
+    after?: AfterAdviceType
+    afterReturning?: AfterReturningAdviceType
+    afterThrowing?: AfterThrowAdviceType
+    before?: BeforeAdviceType
+    around?: AroundAdviceType
 }
 
 // 创建advice

@@ -1215,11 +1215,11 @@
 	    var reg;
 
 	    if (rule[0] === '?') {
-	      reg = new RegExp('^[_\\w]' + rule.substring(1).replace(/\?/ig, '[_\\w\\d]').replace(/\*/ig, '[_\\w\\d]*') + '$', 'g');
+	      reg = new RegExp('^[_\\w]' + rule.substring(1).replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
 	    } else if (rule[0] === '*') {
-	      reg = new RegExp('^([_\\w]?|[_\\w][_\\w\\d]*)' + rule.substring(1).replace(/\?/ig, '[_\\w\\d]').replace(/\*/ig, '[_\\w\\d]*') + '$', 'g');
+	      reg = new RegExp('^([_\\w]?|[_\\w][_\\w\\d]*)' + rule.substring(1).replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
 	    } else {
-	      reg = new RegExp('^' + rule.replace(/\?/ig, '[_\\w\\d]').replace(/\*/ig, '[_\\w\\d]*') + '$', 'g');
+	      reg = new RegExp('^' + rule.replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
 	    }
 
 	    return reg;
@@ -1385,106 +1385,120 @@
 
 	    var weavePointcut = function (keys, ctx, type) {
 	      return keys.forEach(function (prop) {
-	        var pointcuts = AOP.reduce(function (rst, aspect) {
-	          var pts = Reflect.getMetadata('MetaData:pointcuts', aspect.prototype);
-	          return rst.concat(pts.filter(function (pointcut) {
-	            return pointcut && pointcut.type === type && pointcut.matches({
-	              namespace: namespace,
-	              className: target.name,
-	              methodName: prop
-	            });
-	          }));
-	        }, []);
+	        var value = ctx[prop];
 
-	        if (!!pointcuts && !!pointcuts.length) {
-	          var value_1 = ctx[prop];
-	          Object.defineProperty(ctx, prop, {
-	            writable: true,
-	            enumerable: true,
-	            value: function () {
-	              var args = [].slice.call(arguments);
-	              var thisArg = this;
-	              var joinpint = new JoinPoint({
-	                target: originTarget,
-	                thisArg: this,
-	                value: value_1,
-	                args: args
-	              });
-	              var index = -1;
-	              var len = pointcuts.length;
+	        if (typeof value === 'function') {
+	          var pointcuts_1 = Reflect.getMetadata('MetaData:pointcuts', target);
 
-	              var executeChain = function () {
-	                index++;
-	                var pointcut = pointcuts[index];
+	          if (!pointcuts_1 || !pointcuts_1.length) {
+	            pointcuts_1 = AOP.reduce(function (rst, aspect) {
+	              var pts = Reflect.getMetadata('MetaData:pointcuts', aspect.prototype);
 
-	                if (pointcut instanceof PointcutClass) {
-	                  var before_1 = pointcut.findAdvice('before');
-	                  var after_1 = pointcut.findAdvice('after');
-	                  var around = pointcut.findAdvice('around');
-	                  var afterThrowing_1 = pointcut.findAdvice('afterThrowing');
-	                  var afterReturning_1 = pointcut.findAdvice('afterReturning');
+	              if (!pts) {
+	                return rst;
+	              }
 
-	                  var proceed = function () {
-	                    var rst = null;
-	                    var err = null;
+	              return rst.concat(Array.from(pts.values()).filter(function (pointcut) {
+	                return pointcut && pointcut.type === type && pointcut.matches({
+	                  namespace: namespace,
+	                  className: target.name,
+	                  methodName: prop
+	                });
+	              }));
+	            }, []);
+	            Reflect.defineMetadata('Metadata:pointcuts', pointcuts_1, target);
+	          }
 
-	                    if (before_1) {
-	                      before_1(joinpint);
-	                    }
+	          if (!!pointcuts_1 && !!pointcuts_1.length) {
+	            var value_1 = ctx[prop];
+	            Object.defineProperty(ctx, prop, {
+	              writable: true,
+	              enumerable: true,
+	              value: function () {
+	                var args = [].slice.call(arguments);
+	                var thisArg = this;
+	                var joinpint = new JoinPoint({
+	                  target: originTarget,
+	                  thisArg: this,
+	                  value: value_1,
+	                  args: args
+	                });
+	                var index = -1;
+	                var len = pointcuts_1.length;
 
-	                    try {
-	                      if (index < len - 1) {
-	                        rst = executeChain();
-	                      } else {
-	                        rst = Reflect.apply(value_1, thisArg, args);
+	                var executeChain = function () {
+	                  index++;
+	                  var pointcut = pointcuts_1[index];
+
+	                  if (pointcut instanceof PointcutClass) {
+	                    var before_1 = pointcut.findAdvice('before');
+	                    var after_1 = pointcut.findAdvice('after');
+	                    var around = pointcut.findAdvice('around');
+	                    var afterThrowing_1 = pointcut.findAdvice('afterThrowing');
+	                    var afterReturning_1 = pointcut.findAdvice('afterReturning');
+
+	                    var proceed = function () {
+	                      var rst = null;
+	                      var err = null;
+
+	                      if (before_1) {
+	                        before_1(joinpint);
 	                      }
-	                    } catch (error) {
-	                      err = error;
-	                    }
 
-	                    if (isPromise(rst)) {
-	                      return new Promise(function (resolve, reject) {
-	                        rst.then(function (res) {
-	                          resolve(res);
-	                          afterReturning_1 && afterReturning_1(joinpint, res);
-	                          after_1 && after_1(joinpint, res, null);
-	                        }, function (error) {
-	                          err = error;
-	                          reject(err);
-	                          afterThrowing_1 && afterThrowing_1(joinpint, err);
-	                          after_1 && after_1(joinpint, null, err);
+	                      try {
+	                        if (index < len - 1) {
+	                          rst = executeChain();
+	                        } else {
+	                          rst = Reflect.apply(value_1, thisArg, args);
+	                        }
+	                      } catch (error) {
+	                        err = error;
+	                      }
+
+	                      if (isPromise(rst)) {
+	                        return new Promise(function (resolve, reject) {
+	                          rst.then(function (res) {
+	                            resolve(res);
+	                            afterReturning_1 && afterReturning_1(joinpint, res);
+	                            after_1 && after_1(joinpint, res, null);
+	                          }, function (error) {
+	                            err = error;
+	                            reject(err);
+	                            afterThrowing_1 && afterThrowing_1(joinpint, err);
+	                            after_1 && after_1(joinpint, null, err);
+	                          });
 	                        });
-	                      });
-	                    } else {
-	                      if (err) {
-	                        afterThrowing_1 && afterThrowing_1(joinpint, err);
 	                      } else {
-	                        afterReturning_1 && afterReturning_1(joinpint, rst);
+	                        if (err) {
+	                          afterThrowing_1 && afterThrowing_1(joinpint, err);
+	                        } else {
+	                          afterReturning_1 && afterReturning_1(joinpint, rst);
+	                        }
+
+	                        after_1 && after_1(joinpint, rst, err);
+	                        return rst;
 	                      }
+	                    };
 
-	                      after_1 && after_1(joinpint, rst, err);
-	                      return rst;
+	                    if (around) {
+	                      var proceedJoinpint = new ProceedJoinPoint({
+	                        target: joinpint.target,
+	                        proceed: proceed,
+	                        value: joinpint.value,
+	                        args: joinpint.args,
+	                        thisArg: joinpint.thisArg
+	                      });
+	                      return around(proceedJoinpint);
+	                    } else {
+	                      return proceed();
 	                    }
-	                  };
-
-	                  if (around) {
-	                    var proceedJoinpint = new ProceedJoinPoint({
-	                      target: joinpint.target,
-	                      proceed: proceed,
-	                      value: joinpint.value,
-	                      args: joinpint.args,
-	                      thisArg: joinpint.thisArg
-	                    });
-	                    return around(proceedJoinpint);
-	                  } else {
-	                    return proceed();
 	                  }
-	                }
-	              };
+	                };
 
-	              return executeChain();
-	            }
-	          });
+	                return executeChain();
+	              }
+	            });
+	          }
 	        }
 	      });
 	    };

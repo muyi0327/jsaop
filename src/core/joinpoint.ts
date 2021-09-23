@@ -1,8 +1,7 @@
-
 export interface JoinPointType {
-    target: any;
-    args: any[];
-    thisArg: any;
+    target: any
+    args: any[]
+    thisArg: any
     value: any
 }
 
@@ -19,7 +18,6 @@ export class JoinPoint {
     public readonly thisArg: any // 方法上下文
     public readonly value: any // 成员
 
-
     constructor(jp: JoinPointType) {
         let { target, args, thisArg, value } = jp
         this.target = target
@@ -30,7 +28,7 @@ export class JoinPoint {
 }
 
 export class ProceedJoinPoint extends JoinPoint {
-    public proceed!: Function // 
+    public proceed!: Function //
     constructor(pjp: ProceedJoinPointType) {
         let { target, args, thisArg, value, proceed } = pjp
         super({ target, args, thisArg, value })

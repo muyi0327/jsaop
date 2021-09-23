@@ -1,4 +1,13 @@
-import { Aspect, Before, After, Pointcut, Around, AfterReturning, AfterThrowing, Weaving } from '../../src/index'
+import {
+    Aspect,
+    Before,
+    After,
+    Pointcut,
+    Around,
+    AfterReturning,
+    AfterThrowing,
+    Weaving
+} from '../../src/index'
 
 describe('advices with prototype method', () => {
     let order = -1
@@ -22,7 +31,6 @@ describe('advices with prototype method', () => {
                 expect(jp.thisArg instanceof ProtoMethod).toBe(true)
                 expect(jp.value instanceof Function).toBe(true)
             })
-
         }
 
         @AfterReturning({ value: 'pointcut' })
@@ -98,7 +106,6 @@ describe('advices with prototype method', () => {
     var pm = new ProtoMethod()
     pm.fetchSomething()
 
-
     test('Check the parameters(joinpoint, result, error) of AfterThrowing Advice', () => {
         @Aspect()
         class ProtoMethodAspect1 {
@@ -123,7 +130,6 @@ describe('advices with prototype method', () => {
                 throw 'error'
             }
         }
-
 
         new ProtoMethod1().fetchSomething()
     })

@@ -1,4 +1,13 @@
-import { Aspect, Before, After, Pointcut, Around, AfterReturning, AfterThrowing, Weaving } from '../../src/index'
+import {
+    Aspect,
+    Before,
+    After,
+    Pointcut,
+    Around,
+    AfterReturning,
+    AfterThrowing,
+    Weaving
+} from '../../src/index'
 
 describe('advices with static method', () => {
     let order = -1
@@ -22,7 +31,6 @@ describe('advices with static method', () => {
                 expect(jp.thisArg === StaticMethod).toBe(true)
                 expect(jp.value instanceof Function).toBe(true)
             })
-
         }
 
         @AfterReturning({ value: 'pointcut' })
@@ -82,7 +90,6 @@ describe('advices with static method', () => {
     @Weaving()
     class StaticMethod {
         static fetchSomething() {
-
             return 456
         }
     }

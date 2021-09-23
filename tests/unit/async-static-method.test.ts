@@ -1,4 +1,13 @@
-import { Aspect, Before, After, Pointcut, Around, AfterReturning, AfterThrowing, Weaving } from '../../src/index'
+import {
+    Aspect,
+    Before,
+    After,
+    Pointcut,
+    Around,
+    AfterReturning,
+    AfterThrowing,
+    Weaving
+} from '../../src/index'
 
 describe('advices with async static method', () => {
     let o = ['BeforeAround', 'Before', 'AfterReturning', 'After', 'AfterAround']
@@ -76,8 +85,6 @@ describe('advices with async static method', () => {
         }
 
         await AsyncMethod1.fetchSomething()
-
-
     })
 
     test(`Check the parameters joinpoint and result of AfterReturning Advices`, async () => {
@@ -109,8 +116,6 @@ describe('advices with async static method', () => {
         }
 
         await AsyncMethod2.fetchSomething()
-
-
     })
 
     test(`Check the parameters joinpoint and result of After Advices`, async () => {
@@ -142,8 +147,6 @@ describe('advices with async static method', () => {
         }
 
         await AsyncMethod3.fetchSomething()
-
-
     })
 
     test(`Check the parameters joinpoint and result of Around Advices`, async () => {
@@ -175,8 +178,6 @@ describe('advices with async static method', () => {
         }
 
         await AsyncMethod5.fetchSomething()
-
-
     })
 
     test('Check the parameters err and result of AfterThrowing Advice', async () => {

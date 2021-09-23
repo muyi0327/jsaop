@@ -1,4 +1,13 @@
-import { Aspect, Before, After, Pointcut, Around, AfterReturning, AfterThrowing, Weaving } from '../../src/index'
+import {
+    Aspect,
+    Before,
+    After,
+    Pointcut,
+    Around,
+    AfterReturning,
+    AfterThrowing,
+    Weaving
+} from '../../src/index'
 
 describe('advices with async prototype method', () => {
     let o = ['BeforeAround', 'Before', 'AfterReturning', 'After', 'AfterAround']
@@ -178,6 +187,8 @@ describe('advices with async prototype method', () => {
             }
         }
 
-        new AsyncProtoMethod4().fetchSomething().catch(err => { done() })
+        new AsyncProtoMethod4().fetchSomething().catch((err) => {
+            done()
+        })
     })
 })

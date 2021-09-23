@@ -1,7 +1,15 @@
-import { Aspect, Before, After, Pointcut, Around, AfterReturning, AfterThrowing, Weaving } from '../../src/index'
+import {
+    Aspect,
+    Before,
+    After,
+    Pointcut,
+    Around,
+    AfterReturning,
+    AfterThrowing,
+    Weaving
+} from '../../src/index'
 
 describe('Check the rules of PointcutClass', () => {
-
     @Aspect()
     class PointcutAspect {
         @Pointcut()
@@ -72,7 +80,6 @@ describe('Check the rules of PointcutClass', () => {
     new PointcutClass().doSomething()
     new PointcutClass().submitUser()
 
-
     let time = -1
     @Aspect()
     class PointcutAspect1 {
@@ -94,7 +101,6 @@ describe('Check the rules of PointcutClass', () => {
                 expect(jp.thisArg instanceof PointcutClass1).toBe(true)
                 expect(jp.value instanceof Function).toBe(true)
             })
-
         }
 
         @After({ value: 'pointcut1' })
@@ -133,7 +139,6 @@ describe('Check the rules of PointcutClass', () => {
     p.doSomething()
     p.setName('Tome')
     p.getName()
-
 
     @Aspect()
     class PointcutAspect2 {
