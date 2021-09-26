@@ -49,6 +49,7 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator =
             keys.forEach((prop: string) => {
                 let value = ctx[prop]
                 if (typeof value === 'function') {
+                    // 获取上一次执行缓存的pointcuts
                     let pointcuts: any[] = Reflect.getMetadata('MetaData:pointcuts', target)
 
                     if (!pointcuts || !pointcuts.length) {

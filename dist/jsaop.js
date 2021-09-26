@@ -51,7 +51,7 @@
 	                    Object.defineProperty(target, key, { configurable: true, writable: true, value: value });
 	                }
 	                if (previous)
-	                    previous(key, value);
+	                    { previous(key, value); }
 	            };
 	        }
 	    })(function (exporter) {
@@ -128,21 +128,21 @@
 	        function decorate(decorators, target, propertyKey, attributes) {
 	            if (!IsUndefined(propertyKey)) {
 	                if (!IsArray(decorators))
-	                    throw new TypeError();
+	                    { throw new TypeError(); }
 	                if (!IsObject(target))
-	                    throw new TypeError();
+	                    { throw new TypeError(); }
 	                if (!IsObject(attributes) && !IsUndefined(attributes) && !IsNull(attributes))
-	                    throw new TypeError();
+	                    { throw new TypeError(); }
 	                if (IsNull(attributes))
-	                    attributes = undefined;
+	                    { attributes = undefined; }
 	                propertyKey = ToPropertyKey(propertyKey);
 	                return DecorateProperty(decorators, target, propertyKey, attributes);
 	            }
 	            else {
 	                if (!IsArray(decorators))
-	                    throw new TypeError();
+	                    { throw new TypeError(); }
 	                if (!IsConstructor(target))
-	                    throw new TypeError();
+	                    { throw new TypeError(); }
 	                return DecorateConstructor(decorators, target);
 	            }
 	        }
@@ -192,9 +192,9 @@
 	        function metadata(metadataKey, metadataValue) {
 	            function decorator(target, propertyKey) {
 	                if (!IsObject(target))
-	                    throw new TypeError();
+	                    { throw new TypeError(); }
 	                if (!IsUndefined(propertyKey) && !IsPropertyKey(propertyKey))
-	                    throw new TypeError();
+	                    { throw new TypeError(); }
 	                OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
 	            }
 	            return decorator;
@@ -241,9 +241,9 @@
 	         */
 	        function defineMetadata(metadataKey, metadataValue, target, propertyKey) {
 	            if (!IsObject(target))
-	                throw new TypeError();
+	                { throw new TypeError(); }
 	            if (!IsUndefined(propertyKey))
-	                propertyKey = ToPropertyKey(propertyKey);
+	                { propertyKey = ToPropertyKey(propertyKey); }
 	            return OrdinaryDefineOwnMetadata(metadataKey, metadataValue, target, propertyKey);
 	        }
 	        exporter("defineMetadata", defineMetadata);
@@ -283,9 +283,9 @@
 	         */
 	        function hasMetadata(metadataKey, target, propertyKey) {
 	            if (!IsObject(target))
-	                throw new TypeError();
+	                { throw new TypeError(); }
 	            if (!IsUndefined(propertyKey))
-	                propertyKey = ToPropertyKey(propertyKey);
+	                { propertyKey = ToPropertyKey(propertyKey); }
 	            return OrdinaryHasMetadata(metadataKey, target, propertyKey);
 	        }
 	        exporter("hasMetadata", hasMetadata);
@@ -325,9 +325,9 @@
 	         */
 	        function hasOwnMetadata(metadataKey, target, propertyKey) {
 	            if (!IsObject(target))
-	                throw new TypeError();
+	                { throw new TypeError(); }
 	            if (!IsUndefined(propertyKey))
-	                propertyKey = ToPropertyKey(propertyKey);
+	                { propertyKey = ToPropertyKey(propertyKey); }
 	            return OrdinaryHasOwnMetadata(metadataKey, target, propertyKey);
 	        }
 	        exporter("hasOwnMetadata", hasOwnMetadata);
@@ -367,9 +367,9 @@
 	         */
 	        function getMetadata(metadataKey, target, propertyKey) {
 	            if (!IsObject(target))
-	                throw new TypeError();
+	                { throw new TypeError(); }
 	            if (!IsUndefined(propertyKey))
-	                propertyKey = ToPropertyKey(propertyKey);
+	                { propertyKey = ToPropertyKey(propertyKey); }
 	            return OrdinaryGetMetadata(metadataKey, target, propertyKey);
 	        }
 	        exporter("getMetadata", getMetadata);
@@ -409,9 +409,9 @@
 	         */
 	        function getOwnMetadata(metadataKey, target, propertyKey) {
 	            if (!IsObject(target))
-	                throw new TypeError();
+	                { throw new TypeError(); }
 	            if (!IsUndefined(propertyKey))
-	                propertyKey = ToPropertyKey(propertyKey);
+	                { propertyKey = ToPropertyKey(propertyKey); }
 	            return OrdinaryGetOwnMetadata(metadataKey, target, propertyKey);
 	        }
 	        exporter("getOwnMetadata", getOwnMetadata);
@@ -450,9 +450,9 @@
 	         */
 	        function getMetadataKeys(target, propertyKey) {
 	            if (!IsObject(target))
-	                throw new TypeError();
+	                { throw new TypeError(); }
 	            if (!IsUndefined(propertyKey))
-	                propertyKey = ToPropertyKey(propertyKey);
+	                { propertyKey = ToPropertyKey(propertyKey); }
 	            return OrdinaryMetadataKeys(target, propertyKey);
 	        }
 	        exporter("getMetadataKeys", getMetadataKeys);
@@ -491,9 +491,9 @@
 	         */
 	        function getOwnMetadataKeys(target, propertyKey) {
 	            if (!IsObject(target))
-	                throw new TypeError();
+	                { throw new TypeError(); }
 	            if (!IsUndefined(propertyKey))
-	                propertyKey = ToPropertyKey(propertyKey);
+	                { propertyKey = ToPropertyKey(propertyKey); }
 	            return OrdinaryOwnMetadataKeys(target, propertyKey);
 	        }
 	        exporter("getOwnMetadataKeys", getOwnMetadataKeys);
@@ -533,20 +533,20 @@
 	         */
 	        function deleteMetadata(metadataKey, target, propertyKey) {
 	            if (!IsObject(target))
-	                throw new TypeError();
+	                { throw new TypeError(); }
 	            if (!IsUndefined(propertyKey))
-	                propertyKey = ToPropertyKey(propertyKey);
+	                { propertyKey = ToPropertyKey(propertyKey); }
 	            var metadataMap = GetOrCreateMetadataMap(target, propertyKey, /*Create*/ false);
 	            if (IsUndefined(metadataMap))
-	                return false;
+	                { return false; }
 	            if (!metadataMap.delete(metadataKey))
-	                return false;
+	                { return false; }
 	            if (metadataMap.size > 0)
-	                return true;
+	                { return true; }
 	            var targetMetadata = Metadata.get(target);
 	            targetMetadata.delete(propertyKey);
 	            if (targetMetadata.size > 0)
-	                return true;
+	                { return true; }
 	            Metadata.delete(target);
 	            return true;
 	        }
@@ -557,7 +557,7 @@
 	                var decorated = decorator(target);
 	                if (!IsUndefined(decorated) && !IsNull(decorated)) {
 	                    if (!IsConstructor(decorated))
-	                        throw new TypeError();
+	                        { throw new TypeError(); }
 	                    target = decorated;
 	                }
 	            }
@@ -569,7 +569,7 @@
 	                var decorated = decorator(target, propertyKey, descriptor);
 	                if (!IsUndefined(decorated) && !IsNull(decorated)) {
 	                    if (!IsObject(decorated))
-	                        throw new TypeError();
+	                        { throw new TypeError(); }
 	                    descriptor = decorated;
 	                }
 	            }
@@ -579,14 +579,14 @@
 	            var targetMetadata = Metadata.get(O);
 	            if (IsUndefined(targetMetadata)) {
 	                if (!Create)
-	                    return undefined;
+	                    { return undefined; }
 	                targetMetadata = new _Map();
 	                Metadata.set(O, targetMetadata);
 	            }
 	            var metadataMap = targetMetadata.get(P);
 	            if (IsUndefined(metadataMap)) {
 	                if (!Create)
-	                    return undefined;
+	                    { return undefined; }
 	                metadataMap = new _Map();
 	                targetMetadata.set(P, metadataMap);
 	            }
@@ -597,10 +597,10 @@
 	        function OrdinaryHasMetadata(MetadataKey, O, P) {
 	            var hasOwn = OrdinaryHasOwnMetadata(MetadataKey, O, P);
 	            if (hasOwn)
-	                return true;
+	                { return true; }
 	            var parent = OrdinaryGetPrototypeOf(O);
 	            if (!IsNull(parent))
-	                return OrdinaryHasMetadata(MetadataKey, parent, P);
+	                { return OrdinaryHasMetadata(MetadataKey, parent, P); }
 	            return false;
 	        }
 	        // 3.1.2.1 OrdinaryHasOwnMetadata(MetadataKey, O, P)
@@ -608,7 +608,7 @@
 	        function OrdinaryHasOwnMetadata(MetadataKey, O, P) {
 	            var metadataMap = GetOrCreateMetadataMap(O, P, /*Create*/ false);
 	            if (IsUndefined(metadataMap))
-	                return false;
+	                { return false; }
 	            return ToBoolean(metadataMap.has(MetadataKey));
 	        }
 	        // 3.1.3.1 OrdinaryGetMetadata(MetadataKey, O, P)
@@ -616,10 +616,10 @@
 	        function OrdinaryGetMetadata(MetadataKey, O, P) {
 	            var hasOwn = OrdinaryHasOwnMetadata(MetadataKey, O, P);
 	            if (hasOwn)
-	                return OrdinaryGetOwnMetadata(MetadataKey, O, P);
+	                { return OrdinaryGetOwnMetadata(MetadataKey, O, P); }
 	            var parent = OrdinaryGetPrototypeOf(O);
 	            if (!IsNull(parent))
-	                return OrdinaryGetMetadata(MetadataKey, parent, P);
+	                { return OrdinaryGetMetadata(MetadataKey, parent, P); }
 	            return undefined;
 	        }
 	        // 3.1.4.1 OrdinaryGetOwnMetadata(MetadataKey, O, P)
@@ -627,7 +627,7 @@
 	        function OrdinaryGetOwnMetadata(MetadataKey, O, P) {
 	            var metadataMap = GetOrCreateMetadataMap(O, P, /*Create*/ false);
 	            if (IsUndefined(metadataMap))
-	                return undefined;
+	                { return undefined; }
 	            return metadataMap.get(MetadataKey);
 	        }
 	        // 3.1.5.1 OrdinaryDefineOwnMetadata(MetadataKey, MetadataValue, O, P)
@@ -642,12 +642,12 @@
 	            var ownKeys = OrdinaryOwnMetadataKeys(O, P);
 	            var parent = OrdinaryGetPrototypeOf(O);
 	            if (parent === null)
-	                return ownKeys;
+	                { return ownKeys; }
 	            var parentKeys = OrdinaryMetadataKeys(parent, P);
 	            if (parentKeys.length <= 0)
-	                return ownKeys;
+	                { return ownKeys; }
 	            if (ownKeys.length <= 0)
-	                return parentKeys;
+	                { return parentKeys; }
 	            var set = new _Set();
 	            var keys = [];
 	            for (var _i = 0, ownKeys_1 = ownKeys; _i < ownKeys_1.length; _i++) {
@@ -674,7 +674,7 @@
 	            var keys = [];
 	            var metadataMap = GetOrCreateMetadataMap(O, P, /*Create*/ false);
 	            if (IsUndefined(metadataMap))
-	                return keys;
+	                { return keys; }
 	            var keysObj = metadataMap.keys();
 	            var iterator = GetIterator(keysObj);
 	            var k = 0;
@@ -703,7 +703,7 @@
 	        // https://tc39.github.io/ecma262/#sec-ecmascript-data-types-and-values
 	        function Type(x) {
 	            if (x === null)
-	                return 1 /* Null */;
+	                { return 1 /* Null */; }
 	            switch (typeof x) {
 	                case "undefined": return 0 /* Undefined */;
 	                case "boolean": return 2 /* Boolean */;
@@ -752,7 +752,7 @@
 	            if (exoticToPrim !== undefined) {
 	                var result = exoticToPrim.call(input, hint);
 	                if (IsObject(result))
-	                    throw new TypeError();
+	                    { throw new TypeError(); }
 	                return result;
 	            }
 	            return OrdinaryToPrimitive(input, hint === "default" ? "number" : hint);
@@ -765,13 +765,13 @@
 	                if (IsCallable(toString_1)) {
 	                    var result = toString_1.call(O);
 	                    if (!IsObject(result))
-	                        return result;
+	                        { return result; }
 	                }
 	                var valueOf = O.valueOf;
 	                if (IsCallable(valueOf)) {
 	                    var result = valueOf.call(O);
 	                    if (!IsObject(result))
-	                        return result;
+	                        { return result; }
 	                }
 	            }
 	            else {
@@ -779,13 +779,13 @@
 	                if (IsCallable(valueOf)) {
 	                    var result = valueOf.call(O);
 	                    if (!IsObject(result))
-	                        return result;
+	                        { return result; }
 	                }
 	                var toString_2 = O.toString;
 	                if (IsCallable(toString_2)) {
 	                    var result = toString_2.call(O);
 	                    if (!IsObject(result))
-	                        return result;
+	                        { return result; }
 	                }
 	            }
 	            throw new TypeError();
@@ -805,7 +805,7 @@
 	        function ToPropertyKey(argument) {
 	            var key = ToPrimitive(argument, 3 /* String */);
 	            if (IsSymbol(key))
-	                return key;
+	                { return key; }
 	            return ToString(key);
 	        }
 	        // 7.2 Testing and Comparison Operations
@@ -847,9 +847,9 @@
 	        function GetMethod(V, P) {
 	            var func = V[P];
 	            if (func === undefined || func === null)
-	                return undefined;
+	                { return undefined; }
 	            if (!IsCallable(func))
-	                throw new TypeError();
+	                { throw new TypeError(); }
 	            return func;
 	        }
 	        // 7.4 Operations on Iterator Objects
@@ -857,10 +857,10 @@
 	        function GetIterator(obj) {
 	            var method = GetMethod(obj, iteratorSymbol);
 	            if (!IsCallable(method))
-	                throw new TypeError(); // from Call
+	                { throw new TypeError(); } // from Call
 	            var iterator = method.call(obj);
 	            if (!IsObject(iterator))
-	                throw new TypeError();
+	                { throw new TypeError(); }
 	            return iterator;
 	        }
 	        // 7.4.4 IteratorValue(iterResult)
@@ -879,7 +879,7 @@
 	        function IteratorClose(iterator) {
 	            var f = iterator["return"];
 	            if (f)
-	                f.call(iterator);
+	                { f.call(iterator); }
 	        }
 	        // 9.1 Ordinary Object Internal Methods and Internal Slots
 	        // https://tc39.github.io/ecma262/#sec-ordinary-object-internal-methods-and-internal-slots
@@ -888,7 +888,7 @@
 	        function OrdinaryGetPrototypeOf(O) {
 	            var proto = Object.getPrototypeOf(O);
 	            if (typeof O !== "function" || O === functionPrototype)
-	                return proto;
+	                { return proto; }
 	            // TypeScript doesn't set __proto__ in ES5, as it's non-standard.
 	            // Try to determine the superclass constructor. Compatible implementations
 	            // must either set __proto__ on a subclass constructor to the superclass constructor,
@@ -897,19 +897,19 @@
 	            // If this is not the same as Function.[[Prototype]], then this is definately inherited.
 	            // This is the case when in ES6 or when using __proto__ in a compatible browser.
 	            if (proto !== functionPrototype)
-	                return proto;
+	                { return proto; }
 	            // If the super prototype is Object.prototype, null, or undefined, then we cannot determine the heritage.
 	            var prototype = O.prototype;
 	            var prototypeProto = prototype && Object.getPrototypeOf(prototype);
 	            if (prototypeProto == null || prototypeProto === Object.prototype)
-	                return proto;
+	                { return proto; }
 	            // If the constructor was not a function, then we cannot determine the heritage.
 	            var constructor = prototypeProto.constructor;
 	            if (typeof constructor !== "function")
-	                return proto;
+	                { return proto; }
 	            // If we have some kind of self-reference, then we cannot determine the heritage.
 	            if (constructor === O)
-	                return proto;
+	                { return proto; }
 	            // we have a pretty good guess at the heritage.
 	            return constructor;
 	        }
@@ -1092,7 +1092,7 @@
 	            function CreateUniqueKey() {
 	                var key;
 	                do
-	                    key = "@@WeakMap@@" + CreateUUID();
+	                    { key = "@@WeakMap@@" + CreateUUID(); }
 	                while (HashMap.has(keys, key));
 	                keys[key] = true;
 	                return key;
@@ -1100,22 +1100,22 @@
 	            function GetOrCreateWeakMapTable(target, create) {
 	                if (!hasOwn.call(target, rootKey)) {
 	                    if (!create)
-	                        return undefined;
+	                        { return undefined; }
 	                    Object.defineProperty(target, rootKey, { value: HashMap.create() });
 	                }
 	                return target[rootKey];
 	            }
 	            function FillRandomBytes(buffer, size) {
 	                for (var i = 0; i < size; ++i)
-	                    buffer[i] = Math.random() * 0xff | 0;
+	                    { buffer[i] = Math.random() * 0xff | 0; }
 	                return buffer;
 	            }
 	            function GenRandomBytes(size) {
 	                if (typeof Uint8Array === "function") {
 	                    if (typeof crypto !== "undefined")
-	                        return crypto.getRandomValues(new Uint8Array(size));
+	                        { return crypto.getRandomValues(new Uint8Array(size)); }
 	                    if (typeof msCrypto !== "undefined")
-	                        return msCrypto.getRandomValues(new Uint8Array(size));
+	                        { return msCrypto.getRandomValues(new Uint8Array(size)); }
 	                    return FillRandomBytes(new Uint8Array(size), size);
 	                }
 	                return FillRandomBytes(new Array(size), size);
@@ -1129,9 +1129,9 @@
 	                for (var offset = 0; offset < UUID_SIZE; ++offset) {
 	                    var byte = data[offset];
 	                    if (offset === 4 || offset === 6 || offset === 8)
-	                        result += "-";
+	                        { result += "-"; }
 	                    if (byte < 16)
-	                        result += "0";
+	                        { result += "0"; }
 	                    result += byte.toString(16).toLowerCase();
 	                }
 	                return result;
@@ -1146,144 +1146,116 @@
 	    });
 	})(Reflect$1 || (Reflect$1 = {}));
 
-	var PointcutClass = function () {
-	  function PointcutClass(rules, type) {
-	    if (type === void 0) {
-	      type = 'proto';
+	var PointcutClass = (function () {
+	    function PointcutClass(rules, type) {
+	        if (type === void 0) { type = 'proto'; }
+	        this.advices = {};
+	        this.rules = this.normalizedRules(rules);
+	        this.type = type;
 	    }
-
-	    this.advices = {};
-	    this.rules = this.normalizedRules(rules);
-	    this.type = type;
-	  }
-
-	  PointcutClass.prototype.registAdvice = function (type, advice) {
-	    this.advices[type] = advice;
-	  };
-
-	  PointcutClass.prototype.findAdvice = function (type) {
-	    return this.advices[type];
-	  };
-
-	  PointcutClass.prototype.normalizedRules = function (rules) {
-	    var _this = this;
-
-	    var _rules = rules;
-
-	    if (!rules) {
-	      throw new Error('rules is requried');
-	    }
-
-	    if (typeof rules === 'string') {
-	      _rules = rules.split('&&').map(function (r) {
-	        return r.trim();
-	      });
-	    }
-
-	    if (!Array.isArray(rules)) {
-	      _rules = [rules];
-	    }
-
-	    _rules = _rules.map(function (rule) {
-	      if (rule instanceof RegExp) {
-	        return rule;
-	      }
-
-	      if (typeof rule == 'string') {
-	        return _this.toRegRule(rule);
-	      }
-
-	      if (!rule['className']) {
-	        throw new Error('The property className of PointcutRuleType is required');
-	      }
-
-	      if (!rule['methodName']) {
-	        throw new Error('The property methodName of PointcutRuleType is required');
-	      }
-
-	      'namespace,className,methodName'.split(',').forEach(function (k) {
-	        if (typeof rule[k] === 'string') {
-	          rule[k] = _this.toRegRule(rule[k]);
+	    PointcutClass.prototype.registAdvice = function (type, advice) {
+	        this.advices[type] = advice;
+	    };
+	    PointcutClass.prototype.findAdvice = function (type) {
+	        return this.advices[type];
+	    };
+	    PointcutClass.prototype.normalizedRules = function (rules) {
+	        var _this = this;
+	        var _rules = rules;
+	        if (!rules) {
+	            throw new Error('rules is requried');
 	        }
-	      });
-	      return rule;
-	    });
-	    return _rules;
-	  };
-
-	  PointcutClass.prototype.toRegRule = function (rule) {
-	    var reg;
-
-	    if (rule[0] === '?') {
-	      reg = new RegExp('^[_\\w]' + rule.substring(1).replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
-	    } else if (rule[0] === '*') {
-	      reg = new RegExp('^([_\\w]?|[_\\w][_\\w\\d]*)' + rule.substring(1).replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
-	    } else {
-	      reg = new RegExp('^' + rule.replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
-	    }
-
-	    return reg;
-	  };
-
-	  PointcutClass.prototype.eq = function (type, rules) {
-	    return type === this.type && rules === this.rules;
-	  };
-
-	  PointcutClass.prototype.matches = function (ctx) {
-	    var _a = ctx.namespace,
-	        namespace = _a === void 0 ? '' : _a,
-	        _b = ctx.className,
-	        className = _b === void 0 ? '' : _b,
-	        _c = ctx.methodName,
-	        methodName = _c === void 0 ? '' : _c;
-	    var ctxStr = "" + (namespace ? namespace + ':' : '') + className + "." + methodName;
-	    if (!className || !methodName) return false;
-	    return this.rules.some(function (rule) {
-	      if (rule instanceof RegExp) return rule.test(ctxStr);
-	      rule = rule;
-	      return (!rule.namespace || rule.namespace.test(namespace)) && (!rule.className || rule.className.test(className)) && (!rule.methodName || rule.methodName.test(methodName));
-	    });
-	  };
-
-	  return PointcutClass;
-	}();
+	        if (typeof rules === 'string') {
+	            _rules = rules.split('&&').map(function (r) { return r.trim(); });
+	        }
+	        if (!Array.isArray(rules)) {
+	            _rules = [rules];
+	        }
+	        _rules = _rules.map(function (rule) {
+	            if (rule instanceof RegExp) {
+	                return rule;
+	            }
+	            if (typeof rule == 'string') {
+	                return _this.toRegRule(rule);
+	            }
+	            if (!rule['className']) {
+	                throw new Error('The property className of PointcutRuleType is required');
+	            }
+	            if (!rule['methodName']) {
+	                throw new Error('The property methodName of PointcutRuleType is required');
+	            }
+	            'namespace,className,methodName'.split(',').forEach(function (k) {
+	                if (typeof rule[k] === 'string') {
+	                    rule[k] = _this.toRegRule(rule[k]);
+	                }
+	            });
+	            return rule;
+	        });
+	        return _rules;
+	    };
+	    PointcutClass.prototype.toRegRule = function (rule) {
+	        var reg;
+	        if (rule[0] === '?') {
+	            reg = new RegExp('^[_\\w]' + rule.substring(1).replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
+	        }
+	        else if (rule[0] === '*') {
+	            reg = new RegExp('^([_\\w]?|[_\\w][_\\w\\d]*)' +
+	                rule.substring(1).replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') +
+	                '$', 'g');
+	        }
+	        else {
+	            reg = new RegExp('^' + rule.replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
+	        }
+	        return reg;
+	    };
+	    PointcutClass.prototype.eq = function (type, rules) {
+	        return type === this.type && rules === this.rules;
+	    };
+	    PointcutClass.prototype.matches = function (ctx) {
+	        var _a = ctx.namespace, namespace = _a === void 0 ? '' : _a, _b = ctx.className, className = _b === void 0 ? '' : _b, _c = ctx.methodName, methodName = _c === void 0 ? '' : _c;
+	        var ctxStr = "" + (namespace ? namespace + ':' : '') + className + "." + methodName;
+	        if (!className || !methodName)
+	            { return false; }
+	        return this.rules.some(function (rule) {
+	            if (rule instanceof RegExp)
+	                { return rule.test(ctxStr); }
+	            rule = rule;
+	            return ((!rule.namespace || rule.namespace.test(namespace)) &&
+	                (!rule.className || rule.className.test(className)) &&
+	                (!rule.methodName || rule.methodName.test(methodName)));
+	        });
+	    };
+	    return PointcutClass;
+	}());
 	var Pointcut = function (type) {
-	  if (type === void 0) {
-	    type = 'proto';
-	  }
-
-	  return function (target, propKey, descriptor) {
-	    var pointcutRules = target[propKey];
-	    var metaKey = "MetaData:pointcuts";
-	    var pointcuts = Reflect.getMetadata(metaKey, target);
-
-	    if (!pointcuts) {
-	      pointcuts = new Map();
-	    }
-
-	    var pointCut = new PointcutClass(pointcutRules, type);
-	    pointcuts.set(propKey, pointCut);
-	    Reflect.defineMetadata(metaKey, pointcuts, target);
-	    return descriptor;
-	  };
+	    if (type === void 0) { type = 'proto'; }
+	    return function (target, propKey, descriptor) {
+	        var pointcutRules = target[propKey];
+	        var metaKey = "MetaData:pointcuts";
+	        var pointcuts = Reflect.getMetadata(metaKey, target);
+	        if (!pointcuts) {
+	            pointcuts = new Map();
+	        }
+	        var pointCut = new PointcutClass(pointcutRules, type);
+	        pointcuts.set(propKey, pointCut);
+	        Reflect.defineMetadata(metaKey, pointcuts, target);
+	        return descriptor;
+	    };
 	};
 
-	var createAdvice = function (type) {
-	  return function (options) {
+	var createAdvice = function (type) { return function (options) {
 	    var pointcutName = options.value;
 	    var metaKey = 'MetaData:pointcuts';
 	    return function (target, key, descriptor) {
-	      var fun = descriptor.value;
-	      var pointcuts = Reflect.getMetadata(metaKey, target);
-	      var pt = pointcuts.get(pointcutName);
-	      pt.registAdvice(type, fun);
-	      pointcuts.set(pointcutName, pt);
-	      Reflect.defineMetadata(metaKey, pointcuts, target);
-	      return descriptor;
+	        var fun = descriptor.value;
+	        var pointcuts = Reflect.getMetadata(metaKey, target);
+	        var pt = pointcuts.get(pointcutName);
+	        pt.registAdvice(type, fun);
+	        pointcuts.set(pointcutName, pt);
+	        Reflect.defineMetadata(metaKey, pointcuts, target);
+	        return descriptor;
 	    };
-	  };
-	};
-
+	}; };
 	var Before = createAdvice('before');
 	var After = createAdvice('after');
 	var Around = createAdvice('around');
@@ -1309,204 +1281,169 @@
 	var extendStatics = function(d, b) {
 	    extendStatics = Object.setPrototypeOf ||
 	        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-	        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+	        function (d, b) { for (var p in b) { if (Object.prototype.hasOwnProperty.call(b, p)) { d[p] = b[p]; } } };
 	    return extendStatics(d, b);
 	};
 
 	function __extends(d, b) {
 	    if (typeof b !== "function" && b !== null)
-	        throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+	        { throw new TypeError("Class extends value " + String(b) + " is not a constructor or null"); }
 	    extendStatics(d, b);
 	    function __() { this.constructor = d; }
 	    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 	}
 
-	var JoinPoint = function () {
-	  function JoinPoint(jp) {
-	    this.args = [];
-	    var target = jp.target,
-	        args = jp.args,
-	        thisArg = jp.thisArg,
-	        value = jp.value;
-	    this.target = target;
-	    this.args = args;
-	    this.thisArg = thisArg;
-	    this.value = value;
-	  }
+	var JoinPoint = (function () {
+	    function JoinPoint(jp) {
+	        this.args = [];
+	        var target = jp.target, args = jp.args, thisArg = jp.thisArg, value = jp.value;
+	        this.target = target;
+	        this.args = args;
+	        this.thisArg = thisArg;
+	        this.value = value;
+	    }
+	    return JoinPoint;
+	}());
+	var ProceedJoinPoint = (function (_super) {
+	    __extends(ProceedJoinPoint, _super);
+	    function ProceedJoinPoint(pjp) {
+	        var _this = this;
+	        var target = pjp.target, args = pjp.args, thisArg = pjp.thisArg, value = pjp.value, proceed = pjp.proceed;
+	        _this = _super.call(this, { target: target, args: args, thisArg: thisArg, value: value }) || this;
+	        _this.proceed = proceed;
+	        return _this;
+	    }
+	    return ProceedJoinPoint;
+	}(JoinPoint));
 
-	  return JoinPoint;
-	}();
-
-	var ProceedJoinPoint = function (_super) {
-	  __extends(ProceedJoinPoint, _super);
-
-	  function ProceedJoinPoint(pjp) {
-	    var _this = this;
-
-	    var target = pjp.target,
-	        args = pjp.args,
-	        thisArg = pjp.thisArg,
-	        value = pjp.value,
-	        proceed = pjp.proceed;
-	    _this = _super.call(this, {
-	      target: target,
-	      args: args,
-	      thisArg: thisArg,
-	      value: value
-	    }) || this;
-	    _this.proceed = proceed;
-	    return _this;
-	  }
-
-	  return ProceedJoinPoint;
-	}(JoinPoint);
-
-	var isPromise = function (fn) {
-	  return !!fn && typeof fn.then === 'function' && fn[Symbol.toStringTag] === 'Promise';
-	};
-
+	var isPromise = function (fn) { return !!fn && typeof fn.then === 'function' && fn[Symbol.toStringTag] === 'Promise'; };
 	var AOP = [];
-	var Aspect = function () {
-	  return function (target) {
+	var Aspect = function () { return function (target) {
 	    AOP.push(target);
-	  };
-	};
+	}; };
 	var Weaving = function (opts) {
-	  return function (target) {
-	    var _a = opts || {},
-	        _b = _a.namespace,
-	        namespace = _b === void 0 ? '' : _b;
-	        _a.blackList;
-
-	    var proto = target.prototype;
-	    var props = Object.getOwnPropertyNames(target.prototype);
-	    var statics = Object.getOwnPropertyNames(target);
-	    var originTarget = target;
-
-	    var weavePointcut = function (keys, ctx, type) {
-	      return keys.forEach(function (prop) {
-	        var value = ctx[prop];
-
-	        if (typeof value === 'function') {
-	          var pointcuts_1 = Reflect.getMetadata('MetaData:pointcuts', target);
-
-	          if (!pointcuts_1 || !pointcuts_1.length) {
-	            pointcuts_1 = AOP.reduce(function (rst, aspect) {
-	              var pts = Reflect.getMetadata('MetaData:pointcuts', aspect.prototype);
-
-	              if (!pts) {
-	                return rst;
-	              }
-
-	              return rst.concat(Array.from(pts.values()).filter(function (pointcut) {
-	                return pointcut && pointcut.type === type && pointcut.matches({
-	                  namespace: namespace,
-	                  className: target.name,
-	                  methodName: prop
-	                });
-	              }));
-	            }, []);
-	            Reflect.defineMetadata('Metadata:pointcuts', pointcuts_1, target);
-	          }
-
-	          if (!!pointcuts_1 && !!pointcuts_1.length) {
-	            var value_1 = ctx[prop];
-	            Object.defineProperty(ctx, prop, {
-	              writable: true,
-	              enumerable: true,
-	              value: function () {
-	                var args = [].slice.call(arguments);
-	                var thisArg = this;
-	                var joinpint = new JoinPoint({
-	                  target: originTarget,
-	                  thisArg: this,
-	                  value: value_1,
-	                  args: args
-	                });
-	                var index = -1;
-	                var len = pointcuts_1.length;
-
-	                var executeChain = function () {
-	                  index++;
-	                  var pointcut = pointcuts_1[index];
-
-	                  if (pointcut instanceof PointcutClass) {
-	                    var before_1 = pointcut.findAdvice('before');
-	                    var after_1 = pointcut.findAdvice('after');
-	                    var around = pointcut.findAdvice('around');
-	                    var afterThrowing_1 = pointcut.findAdvice('afterThrowing');
-	                    var afterReturning_1 = pointcut.findAdvice('afterReturning');
-
-	                    var proceed = function () {
-	                      var rst = null;
-	                      var err = null;
-
-	                      if (before_1) {
-	                        before_1(joinpint);
-	                      }
-
-	                      try {
-	                        if (index < len - 1) {
-	                          rst = executeChain();
-	                        } else {
-	                          rst = Reflect.apply(value_1, thisArg, args);
-	                        }
-	                      } catch (error) {
-	                        err = error;
-	                      }
-
-	                      if (isPromise(rst)) {
-	                        return new Promise(function (resolve, reject) {
-	                          rst.then(function (res) {
-	                            resolve(res);
-	                            afterReturning_1 && afterReturning_1(joinpint, res);
-	                            after_1 && after_1(joinpint, res, null);
-	                          }, function (error) {
-	                            err = error;
-	                            reject(err);
-	                            afterThrowing_1 && afterThrowing_1(joinpint, err);
-	                            after_1 && after_1(joinpint, null, err);
-	                          });
-	                        });
-	                      } else {
-	                        if (err) {
-	                          afterThrowing_1 && afterThrowing_1(joinpint, err);
-	                        } else {
-	                          afterReturning_1 && afterReturning_1(joinpint, rst);
-	                        }
-
-	                        after_1 && after_1(joinpint, rst, err);
-	                        return rst;
-	                      }
-	                    };
-
-	                    if (around) {
-	                      var proceedJoinpint = new ProceedJoinPoint({
-	                        target: joinpint.target,
-	                        proceed: proceed,
-	                        value: joinpint.value,
-	                        args: joinpint.args,
-	                        thisArg: joinpint.thisArg
-	                      });
-	                      return around(proceedJoinpint);
-	                    } else {
-	                      return proceed();
+	    return function (target) {
+	        var _a = opts || {}, _b = _a.namespace, namespace = _b === void 0 ? '' : _b; _a.blackList;
+	        var proto = target.prototype;
+	        var props = Object.getOwnPropertyNames(target.prototype);
+	        var statics = Object.getOwnPropertyNames(target);
+	        var originTarget = target;
+	        var weavePointcut = function (keys, ctx, type) {
+	            return keys.forEach(function (prop) {
+	                var value = ctx[prop];
+	                if (typeof value === 'function') {
+	                    var pointcuts_1 = Reflect.getMetadata('MetaData:pointcuts', target);
+	                    if (!pointcuts_1 || !pointcuts_1.length) {
+	                        pointcuts_1 = AOP.reduce(function (rst, aspect) {
+	                            var pts = Reflect.getMetadata('MetaData:pointcuts', aspect.prototype);
+	                            if (!pts) {
+	                                return rst;
+	                            }
+	                            return rst.concat(Array.from(pts.values()).filter(function (pointcut) {
+	                                return pointcut &&
+	                                    pointcut.type === type &&
+	                                    pointcut.matches({
+	                                        namespace: namespace,
+	                                        className: target.name,
+	                                        methodName: prop
+	                                    });
+	                            }));
+	                        }, []);
+	                        Reflect.defineMetadata('Metadata:pointcuts', pointcuts_1, target);
 	                    }
-	                  }
-	                };
-
-	                return executeChain();
-	              }
+	                    if (!!pointcuts_1 && !!pointcuts_1.length) {
+	                        var value_1 = ctx[prop];
+	                        Object.defineProperty(ctx, prop, {
+	                            writable: true,
+	                            enumerable: true,
+	                            value: function () {
+	                                var args = [].slice.call(arguments);
+	                                var thisArg = this;
+	                                var joinpint = new JoinPoint({
+	                                    target: originTarget,
+	                                    thisArg: this,
+	                                    value: value_1,
+	                                    args: args
+	                                });
+	                                var index = -1;
+	                                var len = pointcuts_1.length;
+	                                var executeChain = function () {
+	                                    index++;
+	                                    var pointcut = pointcuts_1[index];
+	                                    if (pointcut instanceof PointcutClass) {
+	                                        var before_1 = pointcut.findAdvice('before');
+	                                        var after_1 = pointcut.findAdvice('after');
+	                                        var around = pointcut.findAdvice('around');
+	                                        var afterThrowing_1 = pointcut.findAdvice('afterThrowing');
+	                                        var afterReturning_1 = pointcut.findAdvice('afterReturning');
+	                                        var proceed = function () {
+	                                            var rst = null;
+	                                            var err = null;
+	                                            if (before_1) {
+	                                                before_1(joinpint);
+	                                            }
+	                                            try {
+	                                                if (index < len - 1) {
+	                                                    rst = executeChain();
+	                                                }
+	                                                else {
+	                                                    rst = Reflect.apply(value_1, thisArg, args);
+	                                                }
+	                                            }
+	                                            catch (error) {
+	                                                err = error;
+	                                            }
+	                                            if (isPromise(rst)) {
+	                                                return new Promise(function (resolve, reject) {
+	                                                    rst.then(function (res) {
+	                                                        resolve(res);
+	                                                        afterReturning_1 && afterReturning_1(joinpint, res);
+	                                                        after_1 && after_1(joinpint, res, null);
+	                                                    }, function (error) {
+	                                                        err = error;
+	                                                        reject(err);
+	                                                        afterThrowing_1 && afterThrowing_1(joinpint, err);
+	                                                        after_1 && after_1(joinpint, null, err);
+	                                                    });
+	                                                });
+	                                            }
+	                                            else {
+	                                                if (err) {
+	                                                    afterThrowing_1 && afterThrowing_1(joinpint, err);
+	                                                }
+	                                                else {
+	                                                    afterReturning_1 && afterReturning_1(joinpint, rst);
+	                                                }
+	                                                after_1 && after_1(joinpint, rst, err);
+	                                                return rst;
+	                                            }
+	                                        };
+	                                        if (around) {
+	                                            var proceedJoinpint = new ProceedJoinPoint({
+	                                                target: joinpint.target,
+	                                                proceed: proceed,
+	                                                value: joinpint.value,
+	                                                args: joinpint.args,
+	                                                thisArg: joinpint.thisArg
+	                                            });
+	                                            return around(proceedJoinpint);
+	                                        }
+	                                        else {
+	                                            return proceed();
+	                                        }
+	                                    }
+	                                };
+	                                return executeChain();
+	                            }
+	                        });
+	                    }
+	                }
 	            });
-	          }
-	        }
-	      });
+	        };
+	        weavePointcut(props, proto, 'proto');
+	        weavePointcut(statics, target, 'static');
+	        return target;
 	    };
-
-	    weavePointcut(props, proto, 'proto');
-	    weavePointcut(statics, target, 'static');
-	    return target;
-	  };
 	};
 
 	exports.After = After;
