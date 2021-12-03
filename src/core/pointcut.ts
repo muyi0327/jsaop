@@ -164,7 +164,7 @@ export const Pointcut =
         let metaKey: string = `MetaData:pointcuts`
         let pointcuts: Map<string, PointcutClass> = Reflect.getMetadata(metaKey, target)
         if (!pointcuts) {
-            pointcuts = new Map()
+            pointcuts = new Map<string, PointcutClass>()
         }
 
         let pointCut: PointcutClass = new PointcutClass(pointcutRules, type)
