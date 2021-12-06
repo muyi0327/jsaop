@@ -1,5 +1,5 @@
 import 'reflect-metadata'
-import { PointcutClass, PointcutMap, PointcutType } from './pointcut'
+import { PointcutClass, PointcutType } from './pointcut'
 import { JoinPoint, ProceedJoinPoint } from './joinpoint'
 import {
     AfterAdviceType,
@@ -8,8 +8,6 @@ import {
     BeforeAdviceType,
     AroundAdviceType
 } from './advice'
-
-export type AspectMap = { [s: string]: PointcutMap }
 
 export interface WeavingOpts {
     blackList?: Array<string>

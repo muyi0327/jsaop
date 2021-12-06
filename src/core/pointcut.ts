@@ -17,7 +17,8 @@ export interface PointcutClassType {
     toRegRule(rule: string): void
 }
 
-export type PointcutMap = { [s: string]: PointcutClass }
+export type PointcutMap = Map<string, PointcutClass>
+
 export type PointcutRuleType = {
     namespace: RegExp | string
     className: RegExp | string
@@ -162,7 +163,7 @@ export const Pointcut =
         let pointcutRules = target[propKey]
 
         let metaKey: string = `MetaData:pointcuts`
-        let pointcuts: Map<string, PointcutClass> = Reflect.getMetadata(metaKey, target)
+        let pointcuts: PointcutMap = Reflect.getMetadata(metaKey, target)
         if (!pointcuts) {
             pointcuts = new Map<string, PointcutClass>()
         }
