@@ -2,11 +2,12 @@ import 'reflect-metadata'
 import { AdviceKeys, Advice, AdviceTypes, Advices } from './advice'
 
 type PointcutMatches = {
+    type?: PointcutType
     namespace?: string
     className?: string
     methodName?: string
 }
-export type PointcutType = 'proto' | 'static'
+export type PointcutType = 'proto' | 'static' | '*'
 export interface PointcutClassType {
     rules: PointcutRules
     advices: Advices
@@ -20,10 +21,12 @@ export interface PointcutClassType {
 export type PointcutMap = Map<string, PointcutClass>
 
 export type PointcutRuleType = {
+    type: PointcutType
     namespace: RegExp | string
     className: RegExp | string
     methodName: RegExp | string
 }
+
 export type PointcutRules = string | RegExp | PointcutRuleType | Array<PointcutRuleType | RegExp | string>
 
 /**
@@ -31,12 +34,11 @@ export type PointcutRules = string | RegExp | PointcutRuleType | Array<PointcutR
  */
 export class PointcutClass implements PointcutClassType {
     rules: PointcutRules // 类匹配规则
-    type: string // 成员类型
+
     advices: Advices = {} // 对应的aspect
 
-    constructor(rules: PointcutRules, type: PointcutType = 'proto') {
+    constructor(rules: PointcutRules) {
         this.rules = this.normalizedRules(rules)
-        this.type = type
     }
 
     /**
@@ -53,7 +55,7 @@ export class PointcutClass implements PointcutClassType {
      * @param type {AdviceKeys}
      * @returns Aspect[AdviceKeys]
      */
-    findAdvice(type: AdviceKeys): AdviceTypes {
+    findAdvice<T extends AdviceKeys>(type: T): Advice<T> {
         return this.advices[type]
     }
 
@@ -81,19 +83,19 @@ export class PointcutClass implements PointcutClassType {
                 return rule
             }
 
-            if (typeof rule == 'string') {
+            if (typeof rule === 'string') {
                 return this.toRegRule(rule)
             }
 
-            if (!rule['className']) {
+            if (!rule.className) {
                 throw new Error('The property className of PointcutRuleType is required')
             }
 
-            if (!rule['methodName']) {
+            if (!rule.methodName) {
                 throw new Error('The property methodName of PointcutRuleType is required')
             }
 
-            'namespace,className,methodName'.split(',').forEach((k) => {
+            'type,namespace,className,methodName'.split(',').forEach((k) => {
                 if (typeof rule[k] === 'string') {
                     rule[k] = this.toRegRule(rule[k])
                 }
@@ -106,28 +108,13 @@ export class PointcutClass implements PointcutClassType {
     }
 
     toRegRule(rule: string) {
-        let reg: RegExp
-        if (rule[0] === '?') {
-            reg = new RegExp(
-                '^[_\\w]' + rule.substring(1).replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$',
-                'g'
-            )
-        } else if (rule[0] === '*') {
-            reg = new RegExp(
-                '^([_\\w]?|[_\\w][_\\w\\d]*)' +
-                    rule.substring(1).replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') +
-                    '$',
-                'g'
-            )
-        } else {
-            reg = new RegExp('^' + rule.replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g')
-        }
+        const reg = new RegExp(`^${rule.replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*')}$`, 'g')
 
         return reg
     }
 
     eq(type, rules) {
-        return type === this.type && rules === this.rules
+        return rules === this.rules
     }
 
     /**
@@ -137,14 +124,23 @@ export class PointcutClass implements PointcutClassType {
      * @returns Boolean
      */
     matches(ctx: PointcutMatches): boolean {
-        let { namespace = '', className = '', methodName = '' } = ctx
-        let ctxStr = `${namespace ? namespace + ':' : ''}${className}.${methodName}`
+        const { namespace = '', className = '', methodName = '', type = 'proto' } = ctx
+        const ctxStr = `${namespace ? `${namespace}:` : ''}${className}.${methodName}`
         if (!className || !methodName) return false
 
         return (this.rules as Array<PointcutRuleType | RegExp | string>).some((rule) => {
-            if (rule instanceof RegExp) return rule.test(ctxStr)
+            if (rule instanceof RegExp) {
+                if (type === 'proto') {
+                    return rule.test(`proto ${ctxStr}`) || rule.test(ctxStr)
+                }
+                if (type === 'static') {
+                    return rule.test(`static ${ctxStr}`)
+                }
+            }
+
             rule = rule as PointcutRuleType
             return (
+                (!rule.type || rule.type === type) &&
                 (!rule.namespace || (rule.namespace as RegExp).test(namespace)) &&
                 (!rule.className || (rule.className as RegExp).test(className)) &&
                 (!rule.methodName || (rule.methodName as RegExp).test(methodName))
@@ -157,21 +153,19 @@ export class PointcutClass implements PointcutClassType {
  * 切点装饰器
  * @returns void
  */
-export const Pointcut =
-    (type: PointcutType = 'proto') =>
-    (target: any, propKey: string, descriptor: PropertyDescriptor) => {
-        let pointcutRules = target[propKey]
+export const Pointcut = () => (target: any, propKey: string, descriptor: PropertyDescriptor) => {
+    const pointcutRules = target[propKey]
 
-        let metaKey: string = `MetaData:pointcuts`
-        let pointcuts: PointcutMap = Reflect.getMetadata(metaKey, target)
-        if (!pointcuts) {
-            pointcuts = new Map<string, PointcutClass>()
-        }
-
-        let pointCut: PointcutClass = new PointcutClass(pointcutRules, type)
-        pointcuts.set(propKey, pointCut)
-
-        Reflect.defineMetadata(metaKey, pointcuts, target)
-
-        return descriptor
+    const metaKey = `MetaData:pointcuts`
+    let pointcuts: PointcutMap = Reflect.getMetadata(metaKey, target)
+    if (!pointcuts) {
+        pointcuts = new Map<string, PointcutClass>()
     }
+
+    const pointCut: PointcutClass = new PointcutClass(pointcutRules)
+    pointcuts.set(propKey, pointCut)
+
+    Reflect.defineMetadata(metaKey, pointcuts, target)
+
+    return descriptor
+}

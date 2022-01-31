@@ -1,7 +1,7 @@
 
 /**
  * jsaop.js v1.0.4
- * (c) 2021-2021 muyi0327 <yfdezhuye@163.com> (https://github.com/muyi0327)
+ * (c) 2021-2022 muyi0327 <yfdezhuye@163.com> (https://github.com/muyi0327)
  * Released under the MIT License.
  */
 
@@ -1144,11 +1144,9 @@ var JSAOP = (function (exports) {
 	})(Reflect$1 || (Reflect$1 = {}));
 
 	var PointcutClass = (function () {
-	    function PointcutClass(rules, type) {
-	        if (type === void 0) { type = 'proto'; }
+	    function PointcutClass(rules) {
 	        this.advices = {};
 	        this.rules = this.normalizedRules(rules);
-	        this.type = type;
 	    }
 	    PointcutClass.prototype.registAdvice = function (type, advice) {
 	        this.advices[type] = advice;
@@ -1181,7 +1179,7 @@ var JSAOP = (function (exports) {
 	            if (!rule['methodName']) {
 	                throw new Error('The property methodName of PointcutRuleType is required');
 	            }
-	            'namespace,className,methodName'.split(',').forEach(function (k) {
+	            'type,namespace,className,methodName'.split(',').forEach(function (k) {
 	                if (typeof rule[k] === 'string') {
 	                    rule[k] = _this.toRegRule(rule[k]);
 	                }
@@ -1191,54 +1189,47 @@ var JSAOP = (function (exports) {
 	        return _rules;
 	    };
 	    PointcutClass.prototype.toRegRule = function (rule) {
-	        var reg;
-	        if (rule[0] === '?') {
-	            reg = new RegExp('^[_\\w]' + rule.substring(1).replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
-	        }
-	        else if (rule[0] === '*') {
-	            reg = new RegExp('^([_\\w]?|[_\\w][_\\w\\d]*)' +
-	                rule.substring(1).replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') +
-	                '$', 'g');
-	        }
-	        else {
-	            reg = new RegExp('^' + rule.replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
-	        }
+	        var reg = new RegExp('^' + rule.replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
 	        return reg;
 	    };
 	    PointcutClass.prototype.eq = function (type, rules) {
-	        return type === this.type && rules === this.rules;
+	        return rules === this.rules;
 	    };
 	    PointcutClass.prototype.matches = function (ctx) {
-	        var _a = ctx.namespace, namespace = _a === void 0 ? '' : _a, _b = ctx.className, className = _b === void 0 ? '' : _b, _c = ctx.methodName, methodName = _c === void 0 ? '' : _c;
+	        var _a = ctx.namespace, namespace = _a === void 0 ? '' : _a, _b = ctx.className, className = _b === void 0 ? '' : _b, _c = ctx.methodName, methodName = _c === void 0 ? '' : _c, _d = ctx.type, type = _d === void 0 ? 'proto' : _d;
 	        var ctxStr = "" + (namespace ? namespace + ':' : '') + className + "." + methodName;
 	        if (!className || !methodName)
 	            { return false; }
 	        return this.rules.some(function (rule) {
-	            if (rule instanceof RegExp)
-	                { return rule.test(ctxStr); }
+	            if (rule instanceof RegExp) {
+	                if (type === 'proto') {
+	                    return rule.test("proto " + ctxStr) || rule.test(ctxStr);
+	                }
+	                else if (type === 'static') {
+	                    return rule.test("static " + ctxStr);
+	                }
+	            }
 	            rule = rule;
-	            return ((!rule.namespace || rule.namespace.test(namespace)) &&
+	            return ((!rule.type || rule.type === type) &&
+	                (!rule.namespace || rule.namespace.test(namespace)) &&
 	                (!rule.className || rule.className.test(className)) &&
 	                (!rule.methodName || rule.methodName.test(methodName)));
 	        });
 	    };
 	    return PointcutClass;
 	}());
-	var Pointcut = function (type) {
-	    if (type === void 0) { type = 'proto'; }
-	    return function (target, propKey, descriptor) {
-	        var pointcutRules = target[propKey];
-	        var metaKey = "MetaData:pointcuts";
-	        var pointcuts = Reflect.getMetadata(metaKey, target);
-	        if (!pointcuts) {
-	            pointcuts = new Map();
-	        }
-	        var pointCut = new PointcutClass(pointcutRules, type);
-	        pointcuts.set(propKey, pointCut);
-	        Reflect.defineMetadata(metaKey, pointcuts, target);
-	        return descriptor;
-	    };
-	};
+	var Pointcut = function () { return function (target, propKey, descriptor) {
+	    var pointcutRules = target[propKey];
+	    var metaKey = "MetaData:pointcuts";
+	    var pointcuts = Reflect.getMetadata(metaKey, target);
+	    if (!pointcuts) {
+	        pointcuts = new Map();
+	    }
+	    var pointCut = new PointcutClass(pointcutRules);
+	    pointcuts.set(propKey, pointCut);
+	    Reflect.defineMetadata(metaKey, pointcuts, target);
+	    return descriptor;
+	}; };
 
 	var createAdvice = function (type) { return function (options) {
 	    var pointcutName = options.value;
@@ -1315,9 +1306,14 @@ var JSAOP = (function (exports) {
 
 	var isPromise = function (fn) { return !!fn && typeof fn.then === 'function' && fn[Symbol.toStringTag] === 'Promise'; };
 	var AOP = [];
-	var Aspect = function () { return function (target) {
-	    AOP.push(target);
-	}; };
+	var Aspect = function (opts) {
+	    if (opts === void 0) { opts = { order: 0 }; }
+	    return function (target) {
+	        var order = opts.order;
+	        target.order = order;
+	        AOP.push(target);
+	    };
+	};
 	var Weaving = function (opts) {
 	    return function (target) {
 	        var _a = opts || {}, _b = _a.namespace, namespace = _b === void 0 ? '' : _b; _a.blackList;
@@ -1325,21 +1321,22 @@ var JSAOP = (function (exports) {
 	        var props = Object.getOwnPropertyNames(target.prototype);
 	        var statics = Object.getOwnPropertyNames(target);
 	        var originTarget = target;
+	        var aspects = AOP.sort(function (a, b) { return b.order - a.order; });
 	        var weavePointcut = function (keys, ctx, type) {
 	            return keys.forEach(function (prop) {
 	                var value = ctx[prop];
 	                if (typeof value === 'function') {
 	                    var pointcuts_1 = Reflect.getMetadata('MetaData:pointcuts', target);
 	                    if (!pointcuts_1 || !pointcuts_1.length) {
-	                        pointcuts_1 = AOP.reduce(function (rst, aspect) {
+	                        pointcuts_1 = aspects.reduce(function (rst, aspect) {
 	                            var pts = Reflect.getMetadata('MetaData:pointcuts', aspect.prototype);
 	                            if (!pts) {
 	                                return rst;
 	                            }
 	                            return rst.concat(Array.from(pts.values()).filter(function (pointcut) {
 	                                return pointcut &&
-	                                    pointcut.type === type &&
 	                                    pointcut.matches({
+	                                        type: type,
 	                                        namespace: namespace,
 	                                        className: target.name,
 	                                        methodName: prop
@@ -1456,4 +1453,4 @@ var JSAOP = (function (exports) {
 
 	return exports;
 
-}({}));
+})({});

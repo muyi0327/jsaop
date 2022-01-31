@@ -1,22 +1,13 @@
-import {
-    Aspect,
-    Before,
-    After,
-    Pointcut,
-    Around,
-    AfterReturning,
-    AfterThrowing,
-    Weaving
-} from '../../src/index'
+import { Aspect, Before, After, Pointcut, Around, AfterReturning, AfterThrowing, Weaving } from '../../src/index'
 
 describe('advices with static method', () => {
     let order = -1
 
     @Aspect()
     class StaticMethodAspect {
-        @Pointcut('static')
+        @Pointcut()
         get pointcut() {
-            return 'StaticMethod.fetch*'
+            return 'static StaticMethod.fetch*'
         }
 
         @Before({ value: 'pointcut' })
@@ -29,7 +20,7 @@ describe('advices with static method', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('StaticMethod')
                 expect(jp.thisArg === StaticMethod).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             })
         }
 
@@ -69,7 +60,7 @@ describe('advices with static method', () => {
                 expect(++order).toBe(0)
             })
 
-            let rst = jp.proceed()
+            const rst = jp.proceed()
 
             test('The order of Around adive is 4 -- (after proceed)', () => {
                 expect(++order).toBe(4)

@@ -1,13 +1,4 @@
-import {
-    Aspect,
-    Before,
-    After,
-    Pointcut,
-    Around,
-    AfterReturning,
-    AfterThrowing,
-    Weaving
-} from '../../src/index'
+import { Aspect, Before, After, Pointcut, Around, AfterReturning, AfterThrowing, Weaving } from '../../src/index'
 
 describe('advices with prototype method', () => {
     let order = -1
@@ -29,7 +20,7 @@ describe('advices with prototype method', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('ProtoMethod')
                 expect(jp.thisArg instanceof ProtoMethod).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             })
         }
 
@@ -43,7 +34,7 @@ describe('advices with prototype method', () => {
                 expect(jp.target.name).toBe('ProtoMethod')
                 expect(jp.args.length).toBe(0)
                 expect(jp.thisArg instanceof ProtoMethod).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             })
 
             test('The parameter result of AfterReturning Adive is 123', () => {
@@ -72,7 +63,7 @@ describe('advices with prototype method', () => {
                 expect(++order).toBe(0)
             })
 
-            let rst = jp.proceed()
+            const rst = jp.proceed()
 
             test('The Around Adive is 4 -- (after proceed)', () => {
                 expect(++order).toBe(4)
@@ -103,7 +94,7 @@ describe('advices with prototype method', () => {
         }
     }
 
-    var pm = new ProtoMethod()
+    const pm = new ProtoMethod()
     pm.fetchSomething()
 
     test('Check the parameters(joinpoint, result, error) of AfterThrowing Advice', () => {
@@ -119,7 +110,7 @@ describe('advices with prototype method', () => {
                 expect(jp.args.length).toEqual(0)
                 expect(jp.target.name).toBe('ProtoMethod1')
                 expect(jp.thisArg instanceof ProtoMethod1).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
                 expect(err).toEqual('error')
             }
         }

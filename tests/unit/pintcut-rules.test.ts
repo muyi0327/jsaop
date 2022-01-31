@@ -1,13 +1,4 @@
-import {
-    Aspect,
-    Before,
-    After,
-    Pointcut,
-    Around,
-    AfterReturning,
-    AfterThrowing,
-    Weaving
-} from '../../src/index'
+import { Aspect, Before, After, Pointcut, Around, AfterReturning, AfterThrowing, Weaving } from '../../src/index'
 
 describe('Check the rules of PointcutClass', () => {
     @Aspect()
@@ -36,7 +27,7 @@ describe('Check the rules of PointcutClass', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('PointcutClass')
                 expect(jp.thisArg instanceof PointcutClass).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             })
         }
 
@@ -46,7 +37,7 @@ describe('Check the rules of PointcutClass', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('PointcutClass')
                 expect(jp.thisArg instanceof PointcutClass).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             })
         }
 
@@ -56,7 +47,7 @@ describe('Check the rules of PointcutClass', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('PointcutClass')
                 expect(jp.thisArg instanceof PointcutClass).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             })
         }
     }
@@ -99,7 +90,7 @@ describe('Check the rules of PointcutClass', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('PointcutClass1')
                 expect(jp.thisArg instanceof PointcutClass1).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             })
         }
 
@@ -108,14 +99,14 @@ describe('Check the rules of PointcutClass', () => {
             test(`Check the rules type of Array<RegExp | string> (time:${++time})`, () => {
                 expect(jp.target.name).toBe('PointcutClass1')
                 expect(jp.thisArg instanceof PointcutClass1).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             })
         }
     }
 
     @Weaving()
     class PointcutClass1 {
-        name: string = ''
+        name = ''
         fetchSomething() {
             return 123
         }
@@ -133,7 +124,7 @@ describe('Check the rules of PointcutClass', () => {
         }
     }
 
-    let p = new PointcutClass1()
+    const p = new PointcutClass1()
 
     p.fetchSomething()
     p.doSomething()
@@ -152,13 +143,18 @@ describe('Check the rules of PointcutClass', () => {
             return /^([\d\w][_./-\w\d]*[:]?)?PointcutClass2.do[\w\d]+$/
         }
 
+        @Pointcut()
+        get pointcut2() {
+            return 'static com.fe.test:PointcutClass2.get*'
+        }
+
         @Before({ value: 'pointcut' })
         beforeAction(jp) {
             test('Check the rules contain namespace, and rules type of string', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('PointcutClass2')
                 expect(jp.thisArg instanceof PointcutClass2).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             })
         }
 
@@ -168,13 +164,24 @@ describe('Check the rules of PointcutClass', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('PointcutClass2')
                 expect(jp.thisArg instanceof PointcutClass2).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
+            })
+        }
+
+        @After({ value: 'pointcut2' })
+        afterAction1(jp, result, err) {
+            test('Check the rules for static method', () => {
+                expect(result).toBe(12)
             })
         }
     }
 
     @Weaving({ namespace: 'com.fe.test' })
     class PointcutClass2 {
+        static getLength(): number {
+            return 12
+        }
+
         fetchSomething() {
             return 123
         }
@@ -184,7 +191,8 @@ describe('Check the rules of PointcutClass', () => {
         }
     }
 
-    let p1 = new PointcutClass2()
+    const p1 = new PointcutClass2()
     p1.doSomething()
     p1.fetchSomething()
+    PointcutClass2.getLength()
 })

@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import { PointcutClass, PointcutType } from './pointcut'
-import { JoinPoint, ProceedJoinPoint } from './joinpoint'
+import { JoinPoint, ProceedingJoinPoint } from './joinpoint'
 import {
     AfterAdviceType,
     AfterReturningAdviceType,
@@ -14,7 +14,7 @@ export interface WeavingOpts {
     namespace?: string
 }
 
-const isPromise = (fn) => !!fn && typeof fn.then === 'function' && fn[Symbol.toStringTag] === 'Promise'
+const isPromise = (fn: any) => !!fn && typeof fn.then === 'function' && fn[Symbol.toStringTag] === 'Promise'
 
 /**
  * Aspects管理类
@@ -25,9 +25,16 @@ export const AOP: Array<any> = []
  * Aspect装饰器
  * @param target
  */
-export const Aspect: () => ClassDecorator = () => (target) => {
-    AOP.push(target)
-}
+export const Aspect =
+    (opts: { order?: number } = {}) =>
+    (target) => {
+        const { order } = opts
+        if (!(order === undefined)) {
+            target.order = order
+        }
+
+        AOP.push(target)
+    }
 
 /**
  * 织入装饰器
@@ -36,23 +43,26 @@ export const Aspect: () => ClassDecorator = () => (target) => {
 export const Weaving: (opts?: WeavingOpts) => ClassDecorator =
     (opts?: WeavingOpts) =>
     <TFunction extends Function>(target: TFunction) => {
-        let { namespace = '', blackList = [] } = opts || {}
-        let proto = target.prototype
-        let props = Object.getOwnPropertyNames(target.prototype)
-        let statics = Object.getOwnPropertyNames(target)
-        let originTarget = target
+        const { namespace = '' } = opts || {}
+        const proto = target.prototype
+        const props = Object.getOwnPropertyNames(target.prototype)
+        const statics = Object.getOwnPropertyNames(target)
+        const originTarget = target
 
-        //织入切点
+        // 排序
+        const aspects = AOP.sort((a, b) => a.order - b.order)
+
+        // 织入切点
         const weavePointcut = (keys: string[], ctx: any, type: PointcutType) =>
             keys.forEach((prop: string) => {
-                let value = ctx[prop]
-                if (typeof value === 'function') {
+                const method = ctx[prop]
+                if (typeof method === 'function') {
                     // 获取上一次执行缓存的pointcuts
                     let pointcuts: any[] = Reflect.getMetadata('MetaData:pointcuts', target)
 
                     if (!pointcuts || !pointcuts.length) {
-                        pointcuts = AOP.reduce((rst, aspect) => {
-                            let pts = Reflect.getMetadata('MetaData:pointcuts', aspect.prototype)
+                        pointcuts = aspects.reduce((rst, aspect) => {
+                            const pts = Reflect.getMetadata('MetaData:pointcuts', aspect.prototype)
 
                             if (!pts) {
                                 return rst
@@ -62,8 +72,8 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator =
                                 Array.from<PointcutClass>(pts.values()).filter(
                                     (pointcut) =>
                                         pointcut &&
-                                        pointcut.type === type &&
                                         pointcut.matches({
+                                            type,
                                             namespace,
                                             className: target.name,
                                             methodName: prop
@@ -76,33 +86,33 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator =
                     }
 
                     if (!!pointcuts && !!pointcuts.length) {
-                        let value = ctx[prop]
                         Object.defineProperty(ctx, prop, {
                             writable: true,
                             enumerable: true,
-                            value: function () {
-                                let args = [].slice.call(arguments)
-                                let thisArg = this
-                                let joinpint = new JoinPoint({
+                            value(...args: any[]) {
+                                const thisArg = this
+                                const joinpint = new JoinPoint({
                                     target: originTarget,
                                     thisArg: this,
-                                    value,
+                                    method,
                                     args
                                 })
                                 let index = -1
-                                let len = pointcuts.length
+                                const len = pointcuts.length
 
                                 // 多切点递归执行
                                 const executeChain = () => {
                                     index++
-                                    let pointcut: any = pointcuts[index]
+                                    const pointcut: any = pointcuts[index]
 
                                     if (pointcut instanceof PointcutClass) {
-                                        let before = pointcut.findAdvice('before') as BeforeAdviceType
-                                        let after = pointcut.findAdvice('after') as AfterAdviceType
-                                        let around = pointcut.findAdvice('around') as AroundAdviceType
-                                        let afterThrowing = pointcut.findAdvice('afterThrowing') as AfterThrowAdviceType
-                                        let afterReturning = pointcut.findAdvice(
+                                        const before = pointcut.findAdvice('before') as BeforeAdviceType
+                                        const after = pointcut.findAdvice('after') as AfterAdviceType
+                                        const around = pointcut.findAdvice('around') as AroundAdviceType
+                                        const afterThrowing = pointcut.findAdvice(
+                                            'afterThrowing'
+                                        ) as AfterThrowAdviceType
+                                        const afterReturning = pointcut.findAdvice(
                                             'afterReturning'
                                         ) as AfterReturningAdviceType
 
@@ -118,7 +128,7 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator =
                                                 if (index < len - 1) {
                                                     rst = executeChain()
                                                 } else {
-                                                    rst = Reflect.apply(value, thisArg, args)
+                                                    rst = Reflect.apply(method, thisArg, args)
                                                 }
                                             } catch (error: any) {
                                                 err = error
@@ -140,31 +150,30 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator =
                                                         }
                                                     )
                                                 })
-                                            } else {
-                                                if (err) {
-                                                    afterThrowing && afterThrowing(joinpint, err)
-                                                } else {
-                                                    afterReturning && afterReturning(joinpint, rst)
-                                                }
-
-                                                after && after(joinpint, rst, err)
-
-                                                return rst
                                             }
+
+                                            if (err) {
+                                                afterThrowing && afterThrowing(joinpint, err)
+                                            } else {
+                                                afterReturning && afterReturning(joinpint, rst)
+                                            }
+
+                                            after && after(joinpint, rst, err)
+
+                                            return rst
                                         }
 
                                         if (around) {
-                                            let proceedJoinpint = new ProceedJoinPoint({
+                                            const proceedJoinpint = new ProceedingJoinPoint({
                                                 target: joinpint.target,
                                                 proceed,
-                                                value: joinpint.value,
+                                                method: joinpint.method,
                                                 args: joinpint.args,
                                                 thisArg: joinpint.thisArg
                                             })
                                             return around(proceedJoinpint)
-                                        } else {
-                                            return proceed()
                                         }
+                                        return proceed()
                                     }
                                 }
 
