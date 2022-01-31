@@ -33,10 +33,8 @@ export type PointcutRules = string | RegExp | PointcutRuleType | Array<PointcutR
  * Pointcut类
  */
 export class PointcutClass implements PointcutClassType {
-    rules: PointcutRules // 类匹配规则
-
+    rules: PointcutRules = '' // 类匹配规则
     advices: Advices = {} // 对应的aspect
-
     constructor(rules: PointcutRules) {
         this.rules = this.normalizedRules(rules)
     }

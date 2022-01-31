@@ -1142,6 +1142,7 @@ var Reflect$1;
 
 var PointcutClass = (function () {
     function PointcutClass(rules) {
+        this.rules = '';
         this.advices = {};
         this.rules = this.normalizedRules(rules);
     }
@@ -1167,13 +1168,13 @@ var PointcutClass = (function () {
             if (rule instanceof RegExp) {
                 return rule;
             }
-            if (typeof rule == 'string') {
+            if (typeof rule === 'string') {
                 return _this.toRegRule(rule);
             }
-            if (!rule['className']) {
+            if (!rule.className) {
                 throw new Error('The property className of PointcutRuleType is required');
             }
-            if (!rule['methodName']) {
+            if (!rule.methodName) {
                 throw new Error('The property methodName of PointcutRuleType is required');
             }
             'type,namespace,className,methodName'.split(',').forEach(function (k) {
@@ -1186,7 +1187,7 @@ var PointcutClass = (function () {
         return _rules;
     };
     PointcutClass.prototype.toRegRule = function (rule) {
-        var reg = new RegExp('^' + rule.replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + '$', 'g');
+        var reg = new RegExp("^" + rule.replace(/\?/gi, '[_\\w\\d]').replace(/\*/gi, '[_\\w\\d]*') + "$", 'g');
         return reg;
     };
     PointcutClass.prototype.eq = function (type, rules) {
@@ -1194,7 +1195,7 @@ var PointcutClass = (function () {
     };
     PointcutClass.prototype.matches = function (ctx) {
         var _a = ctx.namespace, namespace = _a === void 0 ? '' : _a, _b = ctx.className, className = _b === void 0 ? '' : _b, _c = ctx.methodName, methodName = _c === void 0 ? '' : _c, _d = ctx.type, type = _d === void 0 ? 'proto' : _d;
-        var ctxStr = "" + (namespace ? namespace + ':' : '') + className + "." + methodName;
+        var ctxStr = "" + (namespace ? namespace + ":" : '') + className + "." + methodName;
         if (!className || !methodName)
             { return false; }
         return this.rules.some(function (rule) {
@@ -1202,7 +1203,7 @@ var PointcutClass = (function () {
                 if (type === 'proto') {
                     return rule.test("proto " + ctxStr) || rule.test(ctxStr);
                 }
-                else if (type === 'static') {
+                if (type === 'static') {
                     return rule.test("static " + ctxStr);
                 }
             }
@@ -1281,48 +1282,54 @@ function __extends(d, b) {
 var JoinPoint = (function () {
     function JoinPoint(jp) {
         this.args = [];
-        var target = jp.target, args = jp.args, thisArg = jp.thisArg, value = jp.value;
+        var target = jp.target, args = jp.args, thisArg = jp.thisArg, method = jp.method, _a = jp.timestamp, timestamp = _a === void 0 ? '' : _a;
         this.target = target;
         this.args = args;
         this.thisArg = thisArg;
-        this.value = value;
+        this.method = method;
+        this.timestamp = timestamp;
     }
+    JoinPoint.prototype.setTimestamp = function (timestamp) {
+        this.timestamp = timestamp;
+    };
     return JoinPoint;
 }());
-var ProceedJoinPoint = (function (_super) {
-    __extends(ProceedJoinPoint, _super);
-    function ProceedJoinPoint(pjp) {
+var ProceedingJoinPoint = (function (_super) {
+    __extends(ProceedingJoinPoint, _super);
+    function ProceedingJoinPoint(pjp) {
         var _this = this;
-        var target = pjp.target, args = pjp.args, thisArg = pjp.thisArg, value = pjp.value, proceed = pjp.proceed;
-        _this = _super.call(this, { target: target, args: args, thisArg: thisArg, value: value }) || this;
+        var target = pjp.target, args = pjp.args, thisArg = pjp.thisArg, method = pjp.method, proceed = pjp.proceed;
+        _this = _super.call(this, { target: target, args: args, thisArg: thisArg, method: method }) || this;
         _this.proceed = proceed;
         return _this;
     }
-    return ProceedJoinPoint;
+    return ProceedingJoinPoint;
 }(JoinPoint));
 
 var isPromise = function (fn) { return !!fn && typeof fn.then === 'function' && fn[Symbol.toStringTag] === 'Promise'; };
 var AOP = [];
 var Aspect = function (opts) {
-    if (opts === void 0) { opts = { order: 0 }; }
+    if (opts === void 0) { opts = {}; }
     return function (target) {
         var order = opts.order;
-        target.order = order;
+        if (!(order === undefined)) {
+            target.order = order;
+        }
         AOP.push(target);
     };
 };
 var Weaving = function (opts) {
     return function (target) {
-        var _a = opts || {}, _b = _a.namespace, namespace = _b === void 0 ? '' : _b; _a.blackList;
+        var _a = (opts || {}).namespace, namespace = _a === void 0 ? '' : _a;
         var proto = target.prototype;
         var props = Object.getOwnPropertyNames(target.prototype);
         var statics = Object.getOwnPropertyNames(target);
         var originTarget = target;
-        var aspects = AOP.sort(function (a, b) { return b.order - a.order; });
+        var aspects = AOP.sort(function (a, b) { return a.order - b.order; });
         var weavePointcut = function (keys, ctx, type) {
             return keys.forEach(function (prop) {
-                var value = ctx[prop];
-                if (typeof value === 'function') {
+                var method = ctx[prop];
+                if (typeof method === 'function') {
                     var pointcuts_1 = Reflect.getMetadata('MetaData:pointcuts', target);
                     if (!pointcuts_1 || !pointcuts_1.length) {
                         pointcuts_1 = aspects.reduce(function (rst, aspect) {
@@ -1343,17 +1350,21 @@ var Weaving = function (opts) {
                         Reflect.defineMetadata('Metadata:pointcuts', pointcuts_1, target);
                     }
                     if (!!pointcuts_1 && !!pointcuts_1.length) {
-                        var value_1 = ctx[prop];
                         Object.defineProperty(ctx, prop, {
                             writable: true,
                             enumerable: true,
                             value: function () {
-                                var args = [].slice.call(arguments);
+                                var arguments$1 = arguments;
+
+                                var args = [];
+                                for (var _i = 0; _i < arguments.length; _i++) {
+                                    args[_i] = arguments$1[_i];
+                                }
                                 var thisArg = this;
                                 var joinpint = new JoinPoint({
                                     target: originTarget,
                                     thisArg: this,
-                                    value: value_1,
+                                    method: method,
                                     args: args
                                 });
                                 var index = -1;
@@ -1378,7 +1389,7 @@ var Weaving = function (opts) {
                                                     rst = executeChain();
                                                 }
                                                 else {
-                                                    rst = Reflect.apply(value_1, thisArg, args);
+                                                    rst = Reflect.apply(method, thisArg, args);
                                                 }
                                             }
                                             catch (error) {
@@ -1398,30 +1409,26 @@ var Weaving = function (opts) {
                                                     });
                                                 });
                                             }
-                                            else {
-                                                if (err) {
-                                                    afterThrowing_1 && afterThrowing_1(joinpint, err);
-                                                }
-                                                else {
-                                                    afterReturning_1 && afterReturning_1(joinpint, rst);
-                                                }
-                                                after_1 && after_1(joinpint, rst, err);
-                                                return rst;
+                                            if (err) {
+                                                afterThrowing_1 && afterThrowing_1(joinpint, err);
                                             }
+                                            else {
+                                                afterReturning_1 && afterReturning_1(joinpint, rst);
+                                            }
+                                            after_1 && after_1(joinpint, rst, err);
+                                            return rst;
                                         };
                                         if (around) {
-                                            var proceedJoinpint = new ProceedJoinPoint({
+                                            var proceedJoinpint = new ProceedingJoinPoint({
                                                 target: joinpint.target,
                                                 proceed: proceed,
-                                                value: joinpint.value,
+                                                method: joinpint.method,
                                                 args: joinpint.args,
                                                 thisArg: joinpint.thisArg
                                             });
                                             return around(proceedJoinpint);
                                         }
-                                        else {
-                                            return proceed();
-                                        }
+                                        return proceed();
                                     }
                                 };
                                 return executeChain();
