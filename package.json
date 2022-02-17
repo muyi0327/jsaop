@@ -36,8 +36,8 @@
     "license": "MIT",
     "lint-staged": {
         "src/**/*.ts": [
-            "prettier --write",
-            "esslint --fix"
+            "esslint --fix",
+            "prettier --write"
         ],
         "src/**/*.scss": [
             "prettier --write"

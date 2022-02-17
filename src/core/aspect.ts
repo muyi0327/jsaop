@@ -58,7 +58,10 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator =
                 const method = ctx[prop]
                 if (typeof method === 'function') {
                     // 获取上一次执行缓存的pointcuts
-                    let pointcuts: any[] = Reflect.getMetadata('MetaData:pointcuts', target)
+                    let pointcuts: any[] = Reflect.getMetadata(
+                        'MetaData:pointcuts',
+                        type === 'static' ? target : target.prototype
+                    )
 
                     if (!pointcuts || !pointcuts.length) {
                         pointcuts = aspects.reduce((rst, aspect) => {
@@ -82,7 +85,11 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator =
                             )
                         }, [])
 
-                        Reflect.defineMetadata('Metadata:pointcuts', pointcuts, target)
+                        Reflect.defineMetadata(
+                            'Metadata:pointcuts',
+                            pointcuts,
+                            type === 'static' ? target : target.prototype
+                        )
                     }
 
                     if (!!pointcuts && !!pointcuts.length) {
@@ -118,10 +125,11 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator =
 
                                         const proceed = () => {
                                             let rst: any = null
+                                            let bfrst: any = null
                                             let err: Error | null = null
 
                                             if (before) {
-                                                before(joinpint)
+                                                bfrst = before(joinpint)
                                             }
 
                                             try {
@@ -173,6 +181,7 @@ export const Weaving: (opts?: WeavingOpts) => ClassDecorator =
                                             })
                                             return around(proceedJoinpint)
                                         }
+
                                         return proceed()
                                     }
                                 }
