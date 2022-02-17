@@ -1,9 +1,9 @@
 import { Aspect, Before, After, Pointcut, Around, AfterReturning, AfterThrowing, Weaving } from '../../src/index'
 
 describe('advices with async prototype method', () => {
-    let o = ['BeforeAround', 'Before', 'AfterReturning', 'After', 'AfterAround']
+    const o = ['BeforeAround', 'Before', 'AfterReturning', 'After', 'AfterAround']
     test(`shold advices order is ${o.join(', ')}`, async () => {
-        let orders: Array<string> = []
+        const orders: Array<string> = []
         @Aspect()
         class AsyncProtoMethodAspect {
             @Pointcut()
@@ -29,7 +29,7 @@ describe('advices with async prototype method', () => {
             @Around({ value: 'pointcut' })
             async aroundAction(jp) {
                 orders.push('BeforeAround')
-                let rst = await jp.proceed()
+                const rst = await jp.proceed()
                 orders.push('AfterAround')
                 return rst
             }
@@ -77,7 +77,7 @@ describe('advices with async prototype method', () => {
         expect(_jp.args.length).toBe(0)
         expect(_jp.target.name).toBe('AsyncProtoMethod1')
         expect(_jp.thisArg instanceof AsyncProtoMethod1).toBe(true)
-        expect(_jp.value instanceof Function).toBe(true)
+        expect(_jp.method instanceof Function).toBe(true)
     })
 
     test(`The parameters joinpoint and result of AfterReturning Advices`, async () => {
@@ -101,6 +101,8 @@ describe('advices with async prototype method', () => {
             async fetchSomething() {
                 return await new Promise((resolve) => {
                     setTimeout(() => resolve(456), 30)
+                }).catch((err) => {
+                    typeof err
                 })
             }
         }
@@ -111,7 +113,7 @@ describe('advices with async prototype method', () => {
         expect(_jp.args.length).toBe(0)
         expect(_jp.target.name).toBe('AsyncProtoMethod2')
         expect(_jp.thisArg instanceof AsyncProtoMethod2).toBe(true)
-        expect(_jp.value instanceof Function).toBe(true)
+        expect(_jp.method instanceof Function).toBe(true)
     })
 
     test(`The parameters joinpoint and result of After Advices`, async () => {
@@ -145,7 +147,7 @@ describe('advices with async prototype method', () => {
         expect(_jp.args.length).toBe(0)
         expect(_jp.target.name).toBe('AsyncProtoMethod3')
         expect(_jp.thisArg instanceof AsyncProtoMethod3).toBe(true)
-        expect(_jp.value instanceof Function).toBe(true)
+        expect(_jp.method instanceof Function).toBe(true)
     })
 
     test(`The parameters joinpoint and error of AfterThrowing Advices`, (done) => {
@@ -165,7 +167,7 @@ describe('advices with async prototype method', () => {
                 expect(jp.args.length).toBe(0)
                 // expect(_jp.target.name).toBe('AsyncProtoMethod4')
                 // expect(_jp.thisArg === AsyncProtoMethod4).toBe(true)
-                // expect(_jp.value instanceof Function).toBe(true)
+                // expect(_jp.method instanceof Function).toBe(true)
             }
         }
 
@@ -178,6 +180,8 @@ describe('advices with async prototype method', () => {
             }
         }
 
-        new AsyncProtoMethod4().fetchSomething().catch(err => { done() })
+        new AsyncProtoMethod4().fetchSomething().catch((err) => {
+            done()
+        })
     })
 })

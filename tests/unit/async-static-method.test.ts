@@ -1,14 +1,19 @@
 import { Aspect, Before, After, Pointcut, Around, AfterReturning, AfterThrowing, Weaving } from '../../src/index'
 
 describe('advices with async static method', () => {
-    let o = ['BeforeAround', 'Before', 'AfterReturning', 'After', 'AfterAround']
+    const o = ['BeforeAround', 'Before', 'BeforeAround1', 'AfterAround1', 'AfterReturning', 'After', 'AfterAround']
     test(`shold advices order is ${o.join(', ')}`, async () => {
-        let orders: Array<string> = []
+        const orders: Array<string> = []
         @Aspect()
         class AsyncMethodAspect {
-            @Pointcut('static')
+            @Pointcut()
             get pointcut() {
-                return 'AsyncMethod.fetch*'
+                return 'static AsyncMethod.fetch*'
+            }
+
+            @Pointcut()
+            get pointcut1() {
+                return /^static\s+[.\w\d:]*AsyncMethod\.fetch[\w\b]+$/
             }
 
             @Before({ value: 'pointcut' })
@@ -29,8 +34,16 @@ describe('advices with async static method', () => {
             @Around({ value: 'pointcut' })
             async aroundAction(jp) {
                 orders.push('BeforeAround')
-                let rst = await jp.proceed()
+                const rst = await jp.proceed()
                 orders.push('AfterAround')
+                return rst
+            }
+
+            @Around({ value: 'pointcut1' })
+            async aroundAction1(jp) {
+                orders.push('BeforeAround1')
+                const rst = await jp.proceed()
+                orders.push('AfterAround1')
                 return rst
             }
         }
@@ -45,6 +58,7 @@ describe('advices with async static method', () => {
         }
 
         await AsyncMethod.fetchSomething()
+
         expect(orders.join()).toBe(o.join())
     })
 
@@ -52,9 +66,9 @@ describe('advices with async static method', () => {
         let _jp
         @Aspect()
         class AsyncMethodAspect1 {
-            @Pointcut('static')
+            @Pointcut()
             get pointcut() {
-                return 'AsyncMethod1.fetch*'
+                return 'static AsyncMethod1.fetch*'
             }
 
             @Before({ value: 'pointcut' })
@@ -62,7 +76,7 @@ describe('advices with async static method', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('AsyncMethod1')
                 expect(jp.thisArg === AsyncMethod1).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             }
         }
 
@@ -76,17 +90,15 @@ describe('advices with async static method', () => {
         }
 
         await AsyncMethod1.fetchSomething()
-
-
     })
 
     test(`Check the parameters joinpoint and result of AfterReturning Advices`, async () => {
         let _jp, _rst
         @Aspect()
         class AsyncMethodAspect2 {
-            @Pointcut('static')
+            @Pointcut()
             get pointcut() {
-                return 'AsyncMethod2.fetch*'
+                return 'static AsyncMethod2.fetch*'
             }
 
             @AfterReturning({ value: 'pointcut' })
@@ -95,7 +107,7 @@ describe('advices with async static method', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('AsyncMethod2')
                 expect(jp.thisArg === AsyncMethod2).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             }
         }
 
@@ -109,17 +121,15 @@ describe('advices with async static method', () => {
         }
 
         await AsyncMethod2.fetchSomething()
-
-
     })
 
     test(`Check the parameters joinpoint and result of After Advices`, async () => {
         let _jp, _rst
         @Aspect()
         class AsyncMethodAspect3 {
-            @Pointcut('static')
+            @Pointcut()
             get pointcut() {
-                return 'AsyncMethod3.fetch*'
+                return 'static AsyncMethod3.fetch*'
             }
 
             @After({ value: 'pointcut' })
@@ -128,7 +138,7 @@ describe('advices with async static method', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('AsyncMethod3')
                 expect(jp.thisArg === AsyncMethod3).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             }
         }
 
@@ -142,16 +152,14 @@ describe('advices with async static method', () => {
         }
 
         await AsyncMethod3.fetchSomething()
-
-
     })
 
     test(`Check the parameters joinpoint and result of Around Advices`, async () => {
         @Aspect()
         class AsyncMethodAspect5 {
-            @Pointcut('static')
+            @Pointcut()
             get pointcut() {
-                return 'AsyncMethod5.fetch*'
+                return 'static AsyncMethod5.fetch*'
             }
 
             @Around({ value: 'pointcut' })
@@ -159,7 +167,7 @@ describe('advices with async static method', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('AsyncMethod5')
                 expect(jp.thisArg === AsyncMethod5).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
                 expect(jp.proceed instanceof Function).toBe(true)
                 return jp.proceed()
             }
@@ -175,16 +183,14 @@ describe('advices with async static method', () => {
         }
 
         await AsyncMethod5.fetchSomething()
-
-
     })
 
     test('Check the parameters err and result of AfterThrowing Advice', async () => {
         @Aspect()
         class AsyncMethodAspect4 {
-            @Pointcut('static')
+            @Pointcut()
             get pointcut() {
-                return 'AsyncMethod4.fetch*'
+                return 'static AsyncMethod4.fetch*'
             }
 
             @Before({ value: 'pointcut' })
@@ -192,7 +198,7 @@ describe('advices with async static method', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('AsyncMethod4')
                 expect(jp.thisArg === AsyncMethod4).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             }
 
             @AfterThrowing({ value: 'pointcut' })
@@ -202,7 +208,7 @@ describe('advices with async static method', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('AsyncMethod4')
                 expect(jp.thisArg === AsyncMethod4).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             }
 
             @After({ value: 'pointcut' })
@@ -213,7 +219,7 @@ describe('advices with async static method', () => {
                 expect(jp.args.length).toBe(0)
                 expect(jp.target.name).toBe('AsyncMethod4')
                 expect(jp.thisArg === AsyncMethod4).toBe(true)
-                expect(jp.value instanceof Function).toBe(true)
+                expect(jp.method instanceof Function).toBe(true)
             }
         }
 

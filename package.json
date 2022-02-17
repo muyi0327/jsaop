@@ -4,6 +4,7 @@
     "description": "typescript aspect aop",
     "main": "./dist/jsaop.js",
     "module": "./dist/jsaop.es.js",
+    "sideEffects": false,
     "files": [
         "dist/*",
         "index.d.ts",
@@ -12,6 +13,7 @@
     ],
     "scripts": {
         "test": "jest -w --detectOpenHandles",
+        "eslint": "npx eslint --ext .ts src --fix",
         "example": "rollup -c ./rollup.exp.config.js",
         "dev": "rimraf ./dist/* && rollup -c --environment INCLUDE_DEPS,BUILD:development -w",
         "build": "yarn test && rimraf ./dist/* && rollup -c --environment INCLUDE_DEPS,BUILD:production",
@@ -32,8 +34,51 @@
     "homepage": "https://github.com/muyi0327/jsaop",
     "author": "muyi0327 <yfdezhuye@163.com> (https://github.com/muyi0327)",
     "license": "MIT",
-    "devDependencies": {},
-    "dependencies": {},
+    "lint-staged": {
+        "src/**/*.ts": [
+            "esslint --cache --fix",
+            "prettier --write"
+        ],
+        "src/**/*.scss": [
+            "prettier --write"
+        ]
+    },
+    "devDependencies": {
+        "@babel/core": "^7.15.5",
+        "@babel/plugin-proposal-decorators": "^7.15.4",
+        "@babel/plugin-transform-runtime": "^7.15.0",
+        "@babel/preset-env": "^7.15.6",
+        "@babel/preset-typescript": "^7.15.0",
+        "@babel/runtime-corejs3": "^7.15.4",
+        "@rollup/plugin-babel": "^5.3.0",
+        "@rollup/plugin-buble": "^0.21.3",
+        "@rollup/plugin-commonjs": "^20.0.0",
+        "@rollup/plugin-json": "^4.1.0",
+        "@rollup/plugin-node-resolve": "^13.0.5",
+        "@rollup/plugin-typescript": "^8.2.5",
+        "@types/jest": "^27.0.2",
+        "@typescript-eslint/eslint-plugin": "^5.8.1",
+        "@typescript-eslint/parser": "^5.8.1",
+        "browserslist": "^4.17.1",
+        "eslint": "^7.32.0",
+        "eslint-config-airbnb-typescript": "^16.1.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-import": "^2.25.4",
+        "eslint-plugin-prettier": "^4.0.0",
+        "husky": "^7.0.4",
+        "jest": "^27.2.1",
+        "lint-staged": "^12.1.5",
+        "prettier": "^2.4.1",
+        "rollup": "^2.58.0",
+        "rollup-plugin-terser": "^7.0.2",
+        "ts-jest": "^27.0.5",
+        "tslib": "^2.3.1",
+        "typescript": "^4.4.3"
+    },
+    "dependencies": {
+        "@babel/runtime": "^7.15.4",
+        "reflect-metadata": "^0.1.13"
+    },
     "browserslist": [
         "> 3% in CN",
         "not ie > 0",
